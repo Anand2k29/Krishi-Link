@@ -94,4 +94,4 @@ This project is a prototype developed for **Innovit Hackathon 2026** by **Team Z
 - **Jyotasana** (Project Lead)
 - **Arpita**
 - **Partha**
-- **Anand** (Developer)
+- **Anand** 
