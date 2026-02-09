@@ -9,7 +9,7 @@ export const AppProvider = ({ children }) => {
     const [totalCO2, setTotalCO2] = useState(0);
     const [liveRequests, setLiveRequests] = useState([]);
 
-    const [activeDrivers, setActiveDrivers] = useState(12); // Starting with a base number of drivers
+    // activeDrivers is now derived from 'drivers' list in the value object
 
     // Mock initial data or effects can be added here if needed
     // For now, we start with 0 as requested.
@@ -24,12 +24,16 @@ export const AppProvider = ({ children }) => {
         setTotalCO2((prev) => prev + requestData.co2);
 
         // Simulate driver assignment affecting availability
-        setActiveDrivers((prev) => Math.max(0, prev - 1));
+        // Since activeDrivers is now derived, we should ideally update a driver's status here if we want to simulate.
+        // For now, removing the broken setActiveDrivers call.
 
-        // Simulate driver becoming available again after some time
+        // simulation code removed for stability
+        /* 
+        setActiveDrivers((prev) => Math.max(0, prev - 1));
         setTimeout(() => {
             setActiveDrivers((prev) => prev + 1);
-        }, 10000); // 10 seconds for demo purposes
+        }, 10000); 
+        */
     };
 
     // Auth State
@@ -88,13 +92,12 @@ export const AppProvider = ({ children }) => {
         return savedDrivers ? JSON.parse(savedDrivers) : [];
     });
 
-    useEffect(() => {
-        if (driverProfile) {
-            localStorage.setItem('krishi_current_driver', JSON.stringify(driverProfile));
-        } else {
-            localStorage.removeItem('krishi_current_driver');
-        }
-    }, [driverProfile]);
+    // Derived state for active drivers (Available or On Delivery)
+    // We can't easily derive this if 'activeDrivers' was separate. 
+    // Let's replace the separate 'activeDrivers' state with a derived one for the dashboard to use.
+    // But 'activeDrivers' variable is exposed. I will update it to be derived.
+
+    const activeDriversCount = drivers.filter(d => d.status !== 'Offline').length;
 
     useEffect(() => {
         localStorage.setItem('krishi_drivers', JSON.stringify(drivers));
@@ -105,16 +108,29 @@ export const AppProvider = ({ children }) => {
         if (existingDriver) {
             return { success: false, message: 'Driver already exists' };
         }
-        const newDriver = { name, password, vehicleNumber };
+        // Default status is 'Available' upon registration
+        const newDriver = { name, password, vehicleNumber, status: 'Available' };
         setDrivers(prev => [...prev, newDriver]);
         setDriverProfile(newDriver);
         return { success: true };
     };
 
+    const updateDriverStatus = (driverName, newStatus) => {
+        setDrivers(prev => prev.map(d =>
+            d.name === driverName ? { ...d, status: newStatus } : d
+        ));
+        // Also update profile if it matches
+        if (driverProfile?.name === driverName) {
+            setDriverProfile(prev => ({ ...prev, status: newStatus }));
+        }
+    };
+
     const loginDriver = (name, password) => {
         const driver = drivers.find(d => d.name.toLowerCase() === name.toLowerCase() && d.password === password);
         if (driver) {
-            setDriverProfile(driver);
+            // Ensure status is present, default to Available if missing (legacy data)
+            const driverWithStatus = { ...driver, status: driver.status || 'Available' };
+            setDriverProfile(driverWithStatus);
             return { success: true };
         }
         return { success: false, message: 'Invalid credentials' };
@@ -134,12 +150,22 @@ export const AppProvider = ({ children }) => {
         setLiveRequests((prev) => prev.map((req) =>
             req.id === id ? { ...req, status: 'Accepted', driverName: driverName, acceptedAt: new Date().toISOString() } : req
         ));
+        // Update driver status to 'On Delivery'
+        updateDriverStatus(driverName, 'On Delivery');
     };
 
     const completeRequest = (id) => {
+        // Find request to get driver name (optional, but good for completeness if we had it)
+        // For now, we assume the current driver is completing it.
         setLiveRequests((prev) => prev.map((req) =>
             req.id === id ? { ...req, status: 'Completed', completedAt: new Date().toISOString() } : req
         ));
+        // We might want to set driver back to 'Available' here, strictly speaking.
+        // But let's let them do it manually or assume they are ready for next.
+        // Let's set back to 'Available' for better UX.
+        if (driverProfile) {
+            updateDriverStatus(driverProfile.name, 'Available');
+        }
     };
 
     const value = {
@@ -147,7 +173,7 @@ export const AppProvider = ({ children }) => {
         totalSavings,
         totalCO2,
         liveRequests,
-        activeDrivers,
+        activeDrivers: activeDriversCount, // Exposing derived count
         addRequest,
         acceptRequest,
         userRole,
@@ -160,6 +186,7 @@ export const AppProvider = ({ children }) => {
         registerDriver,
         loginDriver,
         completeRequest,
+        updateDriverStatus, // Exposed
         users,
         drivers,
     };

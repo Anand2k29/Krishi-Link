@@ -15,6 +15,13 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // TEMPORARY: Clear all data as requested by user for testing
+    localStorage.removeItem('krishi_users');
+    localStorage.removeItem('krishi_drivers');
+    localStorage.removeItem('krishi_current_farmer');
+    localStorage.removeItem('krishi_current_driver');
+    // Also clear any other keys if they exist
+
     if (userRole === 'farmer') setCurrentView('farmer');
     if (userRole === 'driver') setCurrentView('driver');
     if (userRole === 'admin') setCurrentView('ministry');
@@ -34,9 +41,9 @@ function App() {
   };
 
   const allNavItems = [
-    { id: 'farmer', label: 'Farmer Input', icon: Tractor, roles: ['farmer', 'admin'] },
+    { id: 'farmer', label: 'Farmer Input', icon: Tractor, roles: ['farmer'] },
     { id: 'ministry', label: 'Ministry Dashboard', icon: Building2, roles: ['admin'] },
-    { id: 'driver', label: 'Driver Matcher', icon: Truck, roles: ['driver', 'admin'] },
+    { id: 'driver', label: 'Driver Matcher', icon: Truck, roles: ['driver'] },
   ];
 
   const navItems = allNavItems.filter(item => item.roles.includes(userRole));

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from 'react-countup';
-import { Leaf, IndianRupee, Activity, TrendingUp, Truck, Users, History, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Leaf, IndianRupee, Activity, TrendingUp, Truck, Users, History } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function MinistryDashboard() {
     const { totalSavings, totalCO2, liveRequests, totalFarmers, activeDrivers, users, drivers } = useApp();
@@ -14,9 +15,21 @@ export default function MinistryDashboard() {
     const activeRequests = liveRequests.filter(req => req.status === 'Pending' || req.status === 'Accepted');
     const historyRequests = liveRequests.filter(req => req.status === 'Completed');
 
-    // Get active drivers (those who are logged in OR have taken loads)
-    // For this demo, let's assume 'drivers' list contains registered drivers.
-    // 'activeDrivers' is a count from context, let's use the 'drivers' array for the registry.
+    const BASE_TODAY_SAVINGS = 0;
+    const BASE_TODAY_CO2 = 0;
+
+    const currentSavings = BASE_TODAY_SAVINGS + totalSavings;
+    const currentCO2 = BASE_TODAY_CO2 + totalCO2;
+
+    const graphData = [
+        { name: 'Mon', savings: 0, co2: 0 },
+        { name: 'Tue', savings: 0, co2: 0 },
+        { name: 'Wed', savings: 0, co2: 0 },
+        { name: 'Thu', savings: 0, co2: 0 },
+        { name: 'Fri', savings: 0, co2: 0 },
+        { name: 'Sat', savings: 0, co2: 0 },
+        { name: 'Today', savings: currentSavings, co2: currentCO2 },
+    ];
 
     const renderOverview = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -28,62 +41,104 @@ export default function MinistryDashboard() {
                 <MetricCard icon={Truck} label="Active Drivers" value={activeDrivers} color="purple" />
             </div>
 
-            {/* Live Feed Table */}
-            <div className="glass-card overflow-hidden">
-                <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-500" /> Active Orders
-                    </h3>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
-                            <tr>
-                                <th className="px-6 py-3 text-left">Request ID</th>
-                                <th className="px-6 py-3 text-left">Farmer</th>
-                                <th className="px-6 py-3 text-left">Route</th>
-                                <th className="px-6 py-3 text-left">Status</th>
-                                <th className="px-6 py-3 text-left">Assigned Driver</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            <AnimatePresence>
-                                {activeRequests.map((req) => (
-                                    <motion.tr
-                                        key={req.id}
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0 }}
-                                        className="hover:bg-gray-50"
-                                    >
-                                        <td className="px-6 py-4 text-xs text-gray-500">#{req.id}</td>
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{req.farmerName}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">{req.sourceVillage} → {req.targetMandi}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={cn(
-                                                "px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full",
-                                                req.status === 'Accepted' ? "bg-blue-100 text-blue-800" : "bg-yellow-100 text-yellow-800"
-                                            )}>
-                                                {req.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
-                                            {req.driverName ? (
-                                                <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                                                    <Truck className="w-3 h-3" /> {req.driverName}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Live Feed Table - Takes up 2/3 */}
+                <div className="lg:col-span-2 glass-card overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                            <Activity className="w-5 h-5 text-blue-500" /> Active Orders
+                        </h3>
+                    </div>
+                    {/* ... table content remains same ... */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                                <tr>
+                                    <th className="px-6 py-3 text-left">Request ID</th>
+                                    <th className="px-6 py-3 text-left">Farmer</th>
+                                    <th className="px-6 py-3 text-left">Route</th>
+                                    <th className="px-6 py-3 text-left">Status</th>
+                                    <th className="px-6 py-3 text-left">Assigned Driver</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                <AnimatePresence>
+                                    {activeRequests.map((req) => (
+                                        <motion.tr
+                                            key={req.id}
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                            className="hover:bg-gray-50"
+                                        >
+                                            <td className="px-6 py-4 text-xs text-gray-500">#{req.id}</td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{req.farmerName}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">{req.sourceVillage} → {req.targetMandi}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={cn(
+                                                    "px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full",
+                                                    req.status === 'Accepted' ? "bg-blue-100 text-blue-800" : "bg-yellow-100 text-yellow-800"
+                                                )}>
+                                                    {req.status}
                                                 </span>
-                                            ) : (
-                                                <span className="text-gray-400 italic">Looking...</span>
-                                            )}
-                                        </td>
-                                    </motion.tr>
-                                ))}
-                                {activeRequests.length === 0 && (
-                                    <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No active orders</td></tr>
-                                )}
-                            </AnimatePresence>
-                        </tbody>
-                    </table>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                {req.driverName ? (
+                                                    <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                                                        <Truck className="w-3 h-3" /> {req.driverName}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400 italic">Looking...</span>
+                                                )}
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                    {activeRequests.length === 0 && (
+                                        <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No active orders</td></tr>
+                                    )}
+                                </AnimatePresence>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Analytics Graph - Takes up 1/3 */}
+                <div className="glass-card p-4">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-emerald-500" /> Weekly Impact
+                    </h3>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={graphData}>
+                                <defs>
+                                    <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(value) => `₹${value / 1000}k`} />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    formatter={(value) => [`₹${value}`, 'Savings']}
+                                />
+                                <Area type="monotone" dataKey="savings" stroke="#10b981" fillOpacity={1} fill="url(#colorSavings)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="bg-emerald-50 p-2 rounded-lg text-center">
+                            <p className="text-xs text-emerald-600 font-bold">AVG SAVING</p>
+                            <p className="font-bold text-gray-800">
+                                ₹{liveRequests.length > 0 ? (totalSavings / liveRequests.length).toLocaleString(undefined, { maximumFractionDigits: 0 }) : 0}
+                            </p>
+                        </div>
+                        <div className="bg-teal-50 p-2 rounded-lg text-center">
+                            <p className="text-xs text-teal-600 font-bold">TOTAL TRIPS</p>
+                            <p className="font-bold text-gray-800">{liveRequests.length}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
