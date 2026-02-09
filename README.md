@@ -12,14 +12,15 @@
 ### 2. 🚛 For Drivers (The Matcher)
 - **Dead Mile Monetization**: Turn empty return trips into profitable hauls.
 - **Smart Matching**: View available loads filtered by route and proximity.
+- **Offline Mode**: Drivers can toggle their availability status to manage their shifts.
 - **QR Verification**: Built-in QR scanner to verify bookings at pickup points.
 - **Earnings Tracker**: Visualize potential earnings and track completed job history.
 
 ### 3. 🏛️ For Ministry/Admin (The Dashboard)
-- **Real-Time Analytics**: Monitor Total Savings (₹), CO2 Reduction (kg), and Farmers Supported.
-- **Live Operations**: Track active orders, assigned drivers, and fleet status in real-time.
-- **User Registry**: comprehensive database of registered farmers and drivers with detailed activity logs.
-- **Heatmaps & Metrics**: Visual insights into supply chain efficiency.
+- **Real-Time Analytics Graph**: Dynamic weekly impact graph that updates instantly as orders are placed.
+- **Live Operations Feed**: Track active orders, assigned drivers, and fleet status in real-time.
+- **Dynamic Metrics**: Live Average Savings and Total Trip counters based on real platform data.
+- **User Registry**: Comprehensive database of registered farmers and drivers with detailed activity logs.
 
 ---
 
@@ -30,7 +31,7 @@
 - **Animations**: Framer Motion
 - **Charts/Data**: Recharts, React-CountUp
 - **State Management**: Context API + LocalStorage Persistence
-- **Utilities**: clsx, tailwind-merge (shadcn-like utility structure)
+- **Utilities**: clsx, tailwind-merge
 
 ---
 
@@ -38,14 +39,14 @@
 
 ### Prerequisites
 - Node.js (v16 or higher)
-- npm or yarn
+- npm
 
 ### Installation
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/krishi-link.git
-    cd krishi-link
+    git clone https://github.com/Anand2k29/Krishi-Link.git
+    cd Krishi-Link
     ```
 
 2.  **Install dependencies**
@@ -67,19 +68,17 @@
 
 The prototype features a role-based login system. Use the following credentials or register new users:
 
-### **1. Farmer**
-- **Action**: Click "I am a Farmer".
-- **Register**: Enter Name, select Village (Source) and Mandi (Destination).
-- **Flow**: Calculate savings -> Place Request.
+### **1. Farmer (Green Tab)**
+- **Action**: Register/Login as a Farmer.
+- **Flow**: Calculate savings -> **Book Now** -> Scan QR (visible after booking) to complete.
 
-### **2. Driver**
-- **Action**: Click "I am a Driver".
-- **Register**: Enter Name, Password, and Vehicle Number.
-- **Flow**: View "Available Loads" -> Accept Load -> Complete Delivery.
+### **2. Driver (Purple Tab)**
+- **Action**: Register/Login as a Driver.
+- **Flow**: Toggle "Online" -> Accept Load -> Complete Work -> View History.
 
-### **3. Ministry (Admin)**
-- **Action**: Click "Ministry Login" (No password required for prototype).
-- **Flow**: View Dashboard -> Monitor Fleet -> Check User Registry.
+### **3. Admin (Blue Tab)**
+- **Action**: Click "Ministry Login".
+- **Flow**: View Live Graph -> Monitor Fleet Status -> Review History.
 
 ---
 
@@ -95,4 +94,4 @@ This project is a prototype developed for **Innovit Hackathon 2026** by **Team Z
 - **Jyotasana** (Project Lead)
 - **Arpita**
 - **Partha**
-- **Anand**
+- **Anand** (Developer)
