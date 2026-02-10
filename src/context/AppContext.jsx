@@ -205,6 +205,46 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const [b2bOrders, setB2BOrders] = useState(() => {
+        const saved = localStorage.getItem('krishi_b2b_orders');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const [b2bQuotes, setB2BQuotes] = useState(() => {
+        const saved = localStorage.getItem('krishi_b2b_quotes');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('krishi_b2b_orders', JSON.stringify(b2bOrders));
+    }, [b2bOrders]);
+
+    useEffect(() => {
+        localStorage.setItem('krishi_b2b_quotes', JSON.stringify(b2bQuotes));
+    }, [b2bQuotes]);
+
+    const addB2BOrder = (order) => {
+        const newOrder = {
+            ...order,
+            id: `B2B-${Date.now().toString().slice(-4)}`,
+            createdAt: new Date().toISOString(),
+            status: 'Processing',
+            escrowStatus: 'In-Escrow',
+            progress: 10
+        };
+        setB2BOrders(prev => [newOrder, ...prev]);
+    };
+
+    const addB2BQuote = (quote) => {
+        const newQuote = {
+            ...quote,
+            id: `QT-${Date.now().toString().slice(-4)}`,
+            createdAt: new Date().toISOString(),
+            status: 'Pending'
+        };
+        setB2BQuotes(prev => [newQuote, ...prev]);
+    };
+
     const value = {
         totalFarmers,
         totalSavings,
@@ -229,6 +269,10 @@ export const AppProvider = ({ children }) => {
         language,
         setLanguage,
         t,
+        b2bOrders,
+        b2bQuotes,
+        addB2BOrder,
+        addB2BQuote
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

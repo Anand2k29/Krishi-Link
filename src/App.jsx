@@ -7,10 +7,13 @@ import MinistryDashboard from './components/MinistryDashboard';
 import DriverMatcher from './components/DriverMatcher';
 import FarmerRegistration from './components/FarmerRegistration';
 import DriverRegistration from './components/DriverRegistration';
-import { Sprout, Tractor, Building2, Truck, Menu, X, LogIn, LogOut, Shield, Play, Sparkles } from 'lucide-react';
+import { Sprout, Tractor, Building2, Truck, Menu, X, LogIn, LogOut, Shield, Play, Sparkles, LayoutDashboard } from 'lucide-react';
 import { cn } from './lib/utils';
 import GovernmentSchemes from './components/GovernmentSchemes';
 import FarmerStories from './components/FarmerStories';
+import B2BOrders from './components/B2BOrders';
+import SponsoredContent from './components/SponsoredContent';
+import B2BTracking from './components/B2BTracking';
 
 function App() {
   const { userRole, logout, farmerProfile, driverProfile, language, setLanguage, t } = useApp();
@@ -32,6 +35,7 @@ function App() {
     if (userRole === 'farmer') setCurrentView('farmer');
     if (userRole === 'driver') setCurrentView('driver');
     if (userRole === 'admin') setCurrentView('ministry');
+    if (userRole === 'buyer') setCurrentView('b2b-orders');
   }, [userRole]);
 
   const renderView = () => {
@@ -54,6 +58,24 @@ function App() {
             <FarmerStories />
           </div>
         );
+      case 'b2b-orders':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <B2BOrders />
+          </div>
+        );
+      case 'b2b-tracking':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <B2BTracking />
+          </div>
+        );
+      case 'sponsored':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <SponsoredContent />
+          </div>
+        );
       default:
         return <FarmerCalculator />;
     }
@@ -63,6 +85,9 @@ function App() {
     { id: 'farmer', label: t('farmer'), icon: Tractor, roles: ['farmer'] },
     { id: 'govt-schemes', label: t('schemes'), icon: Shield, roles: ['farmer'] },
     { id: 'stories', label: t('stories'), icon: Play, roles: ['farmer'] },
+    { id: 'b2b-orders', label: 'B2B Wholesale', icon: Building2, roles: ['buyer'] },
+    { id: 'b2b-tracking', label: 'B2B Track', icon: LayoutDashboard, roles: ['admin'] },
+    { id: 'sponsored', label: 'Highlights', icon: Sparkles, roles: ['farmer'] },
     { id: 'ministry', label: t('ministry'), icon: Building2, roles: ['admin'] },
     { id: 'driver', label: t('driver'), icon: Truck, roles: ['driver'] },
   ];
@@ -109,12 +134,14 @@ function App() {
               <div className="h-6 w-px bg-gray-200 mx-2"></div>
 
               {/* Language Toggle */}
-              <button
-                onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                className="flex items-center px-4 py-2 rounded-lg text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border border-emerald-100"
-              >
-                {language === 'en' ? 'हिन्दी' : 'English'}
-              </button>
+              {currentView !== 'b2b-orders' && currentView !== 'b2b-tracking' && (
+                <button
+                  onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+                  className="flex items-center px-4 py-2 rounded-lg text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border border-emerald-100"
+                >
+                  {language === 'en' ? 'हिन्दी' : 'English'}
+                </button>
+              )}
 
               <button
                 onClick={logout}

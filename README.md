@@ -8,23 +8,34 @@
 - **Multilingual Support**: Real-time **English/Hindi** toggle for accessibility across diverse agricultural regions.
 - **Logistics Calculator**: Calculate potential savings by using Krishi-Link instead of traditional transport.
 - **Weather Integrated Advisory**: Smart weather alerts (Rain, Wind, Heat) based on source village to optimize harvest transport.
+- **Real-time Agri-Advisories**: Company-sponsored alerts (Weather, Pests, Tech Tips) from trusted partners like Bayer and Jain Irrigation.
 - **WhatsApp Integration**: Share booking receipts directly to WhatsApp for easy record-keeping and coordination.
 - **Dynamic Route Pricing**: Real-time price estimation based on weight (kg) and distance (km).
 - **Mandi-Specific Market Prices**: Live crop rates that update dynamically based on the selected destination Mandi.
 - **Request Booking**: Seamlessly place pickup requests that get broadcasted to nearby drivers.
 - **Government Schemes**: A centralized aggregator for the latest agricultural support schemes and subsidies.
 
-### 2. 🚛 For Drivers (The Matcher)
+### 2. 🏨 For B2B Buyers (Wholesale Portal)
+- **Direct Procurement**: Secure portal for hotels and retail chains to source directly from verified FPOs.
+- **Logistics Integration**: "Ex-Farm" vs "Delivered" pricing with real-time freight estimation.
+- **Sustainability (ESG) Tracking**: Carbon mileage reduction and CO2 savings metrics per product listing.
+- **FPO Digital Showcase**: Detailed FPO profiles with member counts, verified trust badges, and audit compliance reports.
+- **Request Bulk Quote**: Functional inquiry system for large-scale custom procurement contracts.
+- **Payment Transparency**: Dedicated history section to track orders and secure **Escrow Status**.
+
+### 3. 🚛 For Drivers (The Matcher)
 - **Gamification & Badges**: Earn achievements like **"CO2 Warrior"** and **"Speedy Delivery"** based on job performance and fuel efficiency.
 - **Dead Mile Monetization**: Turn empty return trips into profitable hauls.
 - **Smart Matching**: View available loads filtered by route and proximity.
 - **QR Verification**: Built-in QR scanner to verify bookings at pickup points.
 - **Earnings Tracker**: Visualize potential earnings and track completed job history.
 
-### 3. 🏛️ For Ministry/Admin (The Dashboard)
+### 4. 🏛️ For Ministry/Admin (The Dashboard)
 - **Real-Time Analytics Graph**: Dynamic weekly impact graph that updates instantly as orders are placed.
+- **B2B Oversight Dashboard**: Monitor platform-wide corporate procurement and ESG impact.
+- **Payment Escrow Pipeline**: Visual tracking of financial transactions (Holding, Settling, Settled) to ensure FPO safety.
+- **Platform Sustainability Audit**: High-level dashboard for tracking Direct Sourcing Adoption and Carbon Miles.
 - **Live Operations Feed**: Track active orders, assigned drivers, and fleet status in real-time.
-- **Dynamic Metrics**: Live Average Savings and Total Trip counters based on real platform data.
 
 ---
 
@@ -64,7 +75,7 @@
     ```
 
 4.  **Open in Browser**
-    Visit `http://localhost:5174` to view the app.
+    Visit `http://localhost:5173` to view the app.
 
 ---
 
@@ -76,13 +87,17 @@ The prototype features a role-based login system. Use the following credentials 
 - **Action**: Register/Login as a Farmer.
 - **Flow**: Calculate savings -> **Book Now** -> Scan QR (visible after booking) to complete.
 
-### **2. Driver (Purple Tab)**
+### **2. B2B Buyer (Amber Tab)**
+- **Action**: Use the "B2B Buyer" button to access the organizational login.
+- **Flow**: Direct Procurement -> **Order Sample** -> View **Procurement History** to track escrow.
+
+### **3. Driver (Purple Tab)**
 - **Action**: Register/Login as a Driver.
 - **Flow**: Toggle "Online" -> Accept Load -> Complete Work -> View History.
 
-### **3. Admin (Blue Tab)**
+### **4. Admin (Blue Tab)**
 - **Action**: Click "Ministry Login".
-- **Flow**: View Live Graph -> Monitor Fleet Status -> Review History.
+- **Flow**: Monitor **Escrow Pipeline** -> View ESG Analytics -> Track Fleet.
 
 ---
 
