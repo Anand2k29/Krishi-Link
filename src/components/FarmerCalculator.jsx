@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import QRCode from 'react-qr-code';
 import { useApp } from '../context/AppContext';
-import { Leaf, IndianRupee, Truck, ArrowRight, MapPin, Navigation, TrendingUp, TrendingDown, Search, Filter, Wheat, Sprout } from 'lucide-react';
+import { Leaf, IndianRupee, Truck, ArrowRight, MapPin, Navigation, TrendingUp, TrendingDown, Search, Filter, Wheat, Sprout, CloudRain, Sun, Wind, Share2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const VILLAGES = ['Rampur', 'Kishangarh', 'Badlapur', 'Sonarpur', 'Madhopur', 'Begampur', 'Chandpur', 'Dharmapur', 'Lakshmanpur'];
@@ -49,7 +49,7 @@ function FruitIcon(props) {
 }
 
 export default function FarmerCalculator() {
-    const { addRequest, farmerProfile } = useApp();
+    const { addRequest, farmerProfile, t } = useApp();
     const [weight, setWeight] = useState(200);
     const [distance, setDistance] = useState(50);
     const [sourceVillage, setSourceVillage] = useState(VILLAGES[0]);
@@ -75,6 +75,12 @@ export default function FarmerCalculator() {
         return prices.filter(crop => crop.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }, [searchTerm, targetMandi]);
 
+    const handleWhatsAppShare = () => {
+        if (!bookingDetails) return;
+        const text = `Krishi-Link Booking Confirmed!\nID: ${bookingDetails.id}\nFrom: ${bookingDetails.sourceVillage}\nTo: ${bookingDetails.targetMandi}\nPrice: ₹${bookingDetails.krishiPrice}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
     const handleBook = () => {
         const requestData = {
             id: Date.now(),
@@ -94,12 +100,17 @@ export default function FarmerCalculator() {
         setIsBooked(true);
         setBookingDetails(requestData);
 
-        // Reset booking status after animation
         setTimeout(() => {
             setIsBooked(false);
-            // Optionally reset form or keep it
         }, 2000);
     };
+
+    const weatherAlert = useMemo(() => {
+        // Deterministic mock weather based on village name
+        if (sourceVillage.length % 3 === 0) return { type: 'rain', icon: CloudRain, color: 'text-blue-600', bg: 'bg-blue-50' };
+        if (sourceVillage.length % 2 === 0) return { type: 'wind', icon: Wind, color: 'text-teal-600', bg: 'bg-teal-50' };
+        return { type: 'sun', icon: Sun, color: 'text-amber-600', bg: 'bg-amber-50' };
+    }, [sourceVillage]);
 
     return (
         <div className="w-full max-w-6xl mx-auto space-y-6">
@@ -110,7 +121,7 @@ export default function FarmerCalculator() {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-2">
                             <TrendingUp className="w-6 h-6 text-emerald-600" />
-                            <h2 className="text-2xl font-bold text-gray-800">Market Prices</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{t('marketPrices')}</h2>
                         </div>
                         <div className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                             Live: {targetMandi}
@@ -128,7 +139,7 @@ export default function FarmerCalculator() {
                         />
                     </div>
 
-                    <div className="space-y-3 max-h-[450px] overflow-y-auto no-scrollbar pr-1">
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto no-scrollbar pr-1">
                         {filteredPrices.map((crop) => (
                             <div key={crop.id} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 bg-white hover:shadow-md transition-all group">
                                 <div className="flex items-center space-x-4">
@@ -154,13 +165,31 @@ export default function FarmerCalculator() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start space-x-3">
-                        <div className="bg-blue-500 p-1.5 rounded-lg text-white mt-0.5">
-                            <IndianRupee className="w-4 h-4" />
+                    <div className="mt-6 flex flex-col space-y-4">
+                        {/* Weather Advisory Card */}
+                        <div className={cn("p-4 rounded-2xl border flex items-start space-x-3 animate-in slide-in-from-bottom duration-500", weatherAlert.bg, weatherAlert.color + "/20")}>
+                            <div className={cn("p-2 rounded-xl text-white mt-0.5", weatherAlert.type === 'rain' ? "bg-blue-500" : weatherAlert.type === 'wind' ? "bg-teal-500" : "bg-amber-500")}>
+                                <weatherAlert.icon className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-bold uppercase tracking-wider opacity-80">{t('weatherWarning')}: {sourceVillage}</p>
+                                <p className="text-sm font-medium leading-snug">
+                                    {weatherAlert.type === 'rain' ? t('heavyRain') :
+                                        weatherAlert.type === 'wind' ? "High winds expected. Secure your loads during transport." :
+                                            "Ideal harvest weather today. Book transport early to avoid the rush."}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[11px] font-bold text-blue-800 uppercase tracking-wider">Market Insight</p>
-                            <p className="text-sm text-blue-700 leading-snug">Prices in **{targetMandi}** are fluctuating. Compare with other Mandis for the best deal.</p>
+
+                        {/* Market Insight */}
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-start space-x-3">
+                            <div className="bg-gray-500 p-1.5 rounded-lg text-white mt-0.5">
+                                <IndianRupee className="w-4 h-4" />
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">Market Insight</p>
+                                <p className="text-sm text-gray-700 leading-snug">Prices in **{targetMandi}** are fluctuating. Compare with other Mandis for the best deal.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,11 +200,11 @@ export default function FarmerCalculator() {
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center space-x-2">
                                 <Truck className="w-6 h-6 text-emerald-500" />
-                                <h2 className="text-2xl font-bold text-gray-800">Get Quote</h2>
+                                <h2 className="text-2xl font-bold text-gray-800">{t('getQuote')}</h2>
                             </div>
                             {farmerProfile && (
                                 <div className="text-right">
-                                    <p className="text-xs text-gray-500">Welcome,</p>
+                                    <p className="text-xs text-gray-500">{t('welcome')},</p>
                                     <p className="font-semibold text-emerald-700">{farmerProfile.name}</p>
                                 </div>
                             )}
@@ -187,7 +216,7 @@ export default function FarmerCalculator() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-500 uppercase flex items-center">
-                                        <MapPin className="w-3 h-3 mr-1" /> From Village
+                                        <MapPin className="w-3 h-3 mr-1" /> {t('farmer')} Village
                                     </label>
                                     <select
                                         value={sourceVillage}
@@ -199,7 +228,7 @@ export default function FarmerCalculator() {
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-500 uppercase flex items-center">
-                                        <Navigation className="w-3 h-3 mr-1" /> To Mandi
+                                        <Navigation className="w-3 h-3 mr-1" /> {t('driver')} Mandi
                                     </label>
                                     <select
                                         value={targetMandi}
@@ -247,7 +276,7 @@ export default function FarmerCalculator() {
                         {/* Visual Output */}
                         <div className="mt-8 space-y-4">
                             <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                <span className="text-gray-500">Standard Price</span>
+                                <span className="text-gray-500">{t('standardPrice')}</span>
                                 <span className="text-lg font-semibold text-red-400 line-through">
                                     ₹{standardPrice.toLocaleString()}
                                 </span>
@@ -255,7 +284,7 @@ export default function FarmerCalculator() {
 
                             <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-xl border border-emerald-100 ring-1 ring-emerald-200 shadow-sm">
                                 <div className="flex items-center space-x-2">
-                                    <span className="text-emerald-800 font-medium">Krishi Link</span>
+                                    <span className="text-emerald-800 font-medium">{t('krishiLink')}</span>
                                 </div>
                                 <span className="text-2xl font-bold text-emerald-600">
                                     ₹{krishiPrice.toLocaleString()}
@@ -268,7 +297,7 @@ export default function FarmerCalculator() {
                             )}>
                                 <div className="flex items-center space-x-2">
                                     <IndianRupee className="w-4 h-4" />
-                                    <span className="text-sm font-medium">You Save</span>
+                                    <span className="text-sm font-medium">{t('savings')}</span>
                                 </div>
                                 <span className="font-bold">₹{savings.toLocaleString()}</span>
                             </div>
@@ -290,7 +319,7 @@ export default function FarmerCalculator() {
                             {isBooked ? (
                                 <span className="flex items-center justify-center">Request Sent!</span>
                             ) : (
-                                <span className="flex items-center justify-center">Book Now <ArrowRight className="ml-2 w-5 h-5" /></span>
+                                <span className="flex items-center justify-center">{t('bookNow')} <ArrowRight className="ml-2 w-5 h-5" /></span>
                             )}
                         </button>
                     </div>
@@ -300,9 +329,9 @@ export default function FarmerCalculator() {
                         <div className="glass-card p-6 bg-white animate-in slide-in-from-bottom duration-500">
                             <div className="text-center space-y-4">
                                 <div className="bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-sm font-bold inline-block">
-                                    Booking Confirmed
+                                    {t('bookingConfirmed')}
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800">Scan to Verify</h3>
+                                <h3 className="text-xl font-bold text-gray-800">{t('scanToVerify')}</h3>
                                 <div className="flex justify-center p-4 bg-white rounded-xl shadow-inner border border-gray-100">
                                     <QRCode
                                         value={JSON.stringify({
@@ -314,6 +343,7 @@ export default function FarmerCalculator() {
                                     />
                                 </div>
                                 <p className="text-xs text-gray-400">Booking ID: {bookingDetails.id}</p>
+
                                 <div className="border-t border-gray-100 pt-4 mt-4 text-left space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Village:</span>
@@ -324,6 +354,14 @@ export default function FarmerCalculator() {
                                         <span className="font-medium">{bookingDetails.targetMandi}</span>
                                     </div>
                                 </div>
+
+                                <button
+                                    onClick={handleWhatsAppShare}
+                                    className="w-full flex items-center justify-center space-x-2 py-3 bg-[#25D366] text-white rounded-xl font-bold hover:bg-[#128C7E] transition-all shadow-md group mt-4 text-sm"
+                                >
+                                    <Share2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                                    <span>{t('sendWhatsApp')}</span>
+                                </button>
                             </div>
                         </div>
                     )}

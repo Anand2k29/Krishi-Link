@@ -13,14 +13,13 @@ import GovernmentSchemes from './components/GovernmentSchemes';
 import FarmerStories from './components/FarmerStories';
 
 function App() {
-  const { userRole, logout, farmerProfile, driverProfile } = useApp();
+  const { userRole, logout, farmerProfile, driverProfile, language, setLanguage, t } = useApp();
   const [currentView, setCurrentView] = useState('farmer');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showWelcomeBackPopup, setShowWelcomeBackPopup] = useState(false);
 
   useEffect(() => {
     if (userRole === 'farmer' && farmerProfile?.loginCount === 2) {
-      // Check if we already showed it in this session to avoid multiple triggers
       const hasSeenPopup = sessionStorage.getItem('krishi_seen_welcome_popup');
       if (!hasSeenPopup) {
         setShowWelcomeBackPopup(true);
@@ -30,13 +29,6 @@ function App() {
   }, [userRole, farmerProfile]);
 
   useEffect(() => {
-    // TEMPORARY: Clear all data as requested by user for testing
-    localStorage.removeItem('krishi_users');
-    localStorage.removeItem('krishi_drivers');
-    localStorage.removeItem('krishi_current_farmer');
-    localStorage.removeItem('krishi_current_driver');
-    // Also clear any other keys if they exist
-
     if (userRole === 'farmer') setCurrentView('farmer');
     if (userRole === 'driver') setCurrentView('driver');
     if (userRole === 'admin') setCurrentView('ministry');
@@ -68,18 +60,14 @@ function App() {
   };
 
   const allNavItems = [
-    { id: 'farmer', label: 'Farmer Input', icon: Tractor, roles: ['farmer'] },
-    { id: 'govt-schemes', label: 'Govt Schemes', icon: Shield, roles: ['farmer'] },
-    { id: 'stories', label: 'Success Stories', icon: Play, roles: ['farmer'] },
-    { id: 'ministry', label: 'Ministry Dashboard', icon: Building2, roles: ['admin'] },
-    { id: 'driver', label: 'Driver Matcher', icon: Truck, roles: ['driver'] },
+    { id: 'farmer', label: t('farmer'), icon: Tractor, roles: ['farmer'] },
+    { id: 'govt-schemes', label: t('schemes'), icon: Shield, roles: ['farmer'] },
+    { id: 'stories', label: t('stories'), icon: Play, roles: ['farmer'] },
+    { id: 'ministry', label: t('ministry'), icon: Building2, roles: ['admin'] },
+    { id: 'driver', label: t('driver'), icon: Truck, roles: ['driver'] },
   ];
 
   const navItems = allNavItems.filter(item => item.roles.includes(userRole));
-
-  // Set initial view based on role if needed, or handle in useEffect
-  // For simplicity, we can let the user click or default to the first available item.
-  // Ideally, use useEffect to set currentView when userRole changes.
 
   if (!userRole) {
     return <Login />;
@@ -119,12 +107,21 @@ function App() {
                 </button>
               ))}
               <div className="h-6 w-px bg-gray-200 mx-2"></div>
+
+              {/* Language Toggle */}
+              <button
+                onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+                className="flex items-center px-4 py-2 rounded-lg text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border border-emerald-100"
+              >
+                {language === 'en' ? 'हिन्दी' : 'English'}
+              </button>
+
               <button
                 onClick={logout}
                 className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {t('logout')}
               </button>
             </div>
 
@@ -161,7 +158,17 @@ function App() {
                 {item.label}
               </button>
             ))}
-            <div className="border-t border-gray-100 my-2 pt-2">
+            <div className="border-t border-gray-100 my-2 pt-2 space-y-2">
+              <button
+                onClick={() => {
+                  setLanguage(language === 'en' ? 'hi' : 'en');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center w-full px-4 py-3 rounded-lg text-base font-bold text-emerald-700 hover:bg-emerald-50 transition-colors"
+              >
+                <Sparkles className="w-5 h-5 mr-3" />
+                {language === 'en' ? 'हिन्दी' : 'English'}
+              </button>
               <button
                 onClick={() => {
                   logout();
@@ -170,7 +177,7 @@ function App() {
                 className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut className="w-5 h-5 mr-3" />
-                Logout
+                {t('logout')}
               </button>
             </div>
           </div>
@@ -203,7 +210,7 @@ function App() {
                 <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
                   <Sparkles className="w-8 h-8 text-emerald-100 fill-emerald-100" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Welcome Back!</h3>
+                <h3 className="text-2xl font-bold mb-2">{t('welcome')} Back!</h3>
                 <p className="text-emerald-50 opacity-90 text-sm">
                   We're glad to see you again! Check out the new **Success Stories** tab to learn from fellow farmers.
                 </p>
