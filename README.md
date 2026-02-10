@@ -64,7 +64,7 @@
     ```
 
 4.  **Open in Browser**
-    Visit `http://localhost:5173` to view the app.
+    Visit `http://localhost:5174` to view the app.
 
 ---
 
