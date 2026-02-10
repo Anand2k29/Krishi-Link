@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Login from './components/Login';
 import { useApp } from './context/AppContext';
 import FarmerCalculator from './components/FarmerCalculator';
@@ -6,13 +7,27 @@ import MinistryDashboard from './components/MinistryDashboard';
 import DriverMatcher from './components/DriverMatcher';
 import FarmerRegistration from './components/FarmerRegistration';
 import DriverRegistration from './components/DriverRegistration';
-import { Sprout, Tractor, Building2, Truck, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Sprout, Tractor, Building2, Truck, Menu, X, LogIn, LogOut, Shield, Play, Sparkles } from 'lucide-react';
 import { cn } from './lib/utils';
+import GovernmentSchemes from './components/GovernmentSchemes';
+import FarmerStories from './components/FarmerStories';
 
 function App() {
   const { userRole, logout, farmerProfile, driverProfile } = useApp();
   const [currentView, setCurrentView] = useState('farmer');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showWelcomeBackPopup, setShowWelcomeBackPopup] = useState(false);
+
+  useEffect(() => {
+    if (userRole === 'farmer' && farmerProfile?.loginCount === 2) {
+      // Check if we already showed it in this session to avoid multiple triggers
+      const hasSeenPopup = sessionStorage.getItem('krishi_seen_welcome_popup');
+      if (!hasSeenPopup) {
+        setShowWelcomeBackPopup(true);
+        sessionStorage.setItem('krishi_seen_welcome_popup', 'true');
+      }
+    }
+  }, [userRole, farmerProfile]);
 
   useEffect(() => {
     // TEMPORARY: Clear all data as requested by user for testing
@@ -35,6 +50,18 @@ function App() {
         return <MinistryDashboard />;
       case 'driver':
         return driverProfile ? <DriverMatcher /> : <DriverRegistration />;
+      case 'govt-schemes':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <GovernmentSchemes />
+          </div>
+        );
+      case 'stories':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <FarmerStories />
+          </div>
+        );
       default:
         return <FarmerCalculator />;
     }
@@ -42,6 +69,8 @@ function App() {
 
   const allNavItems = [
     { id: 'farmer', label: 'Farmer Input', icon: Tractor, roles: ['farmer'] },
+    { id: 'govt-schemes', label: 'Govt Schemes', icon: Shield, roles: ['farmer'] },
+    { id: 'stories', label: 'Success Stories', icon: Play, roles: ['farmer'] },
     { id: 'ministry', label: 'Ministry Dashboard', icon: Building2, roles: ['admin'] },
     { id: 'driver', label: 'Driver Matcher', icon: Truck, roles: ['driver'] },
   ];
@@ -152,6 +181,54 @@ function App() {
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-64px)] flex flex-col">
         {renderView()}
       </main>
+
+      {/* Welcome Back Popup */}
+      <AnimatePresence>
+        {showWelcomeBackPopup && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowWelcomeBackPopup(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white rounded-3xl shadow-2xl overflow-hidden max-w-sm w-full border border-emerald-100"
+            >
+              <div className="bg-gradient-to-br from-emerald-600 to-teal-600 p-8 text-white text-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
+                  <Sparkles className="w-8 h-8 text-emerald-100 fill-emerald-100" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Welcome Back!</h3>
+                <p className="text-emerald-50 opacity-90 text-sm">
+                  We're glad to see you again! Check out the new **Success Stories** tab to learn from fellow farmers.
+                </p>
+              </div>
+              <div className="p-6 bg-white space-y-3">
+                <button
+                  onClick={() => {
+                    setCurrentView('stories');
+                    setShowWelcomeBackPopup(false);
+                  }}
+                  className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md transform active:scale-95"
+                >
+                  Explore Stories
+                </button>
+                <button
+                  onClick={() => setShowWelcomeBackPopup(false)}
+                  className="w-full py-2 bg-gray-50 text-gray-500 rounded-xl font-medium hover:bg-gray-100 transition-all"
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <footer className="py-6 text-center text-gray-400 text-sm">

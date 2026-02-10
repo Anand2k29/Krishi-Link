@@ -4,10 +4,13 @@
 
 ## 🌟 Key Features
 
-### 1. 🧑‍🌾 For Farmers (The Calculator)
+### 1. 🧑‍🌾 For Farmers (The Dashboard)
 - **Logistics Calculator**: Calculate potential savings by using Krishi-Link instead of traditional transport.
 - **Dynamic Route Pricing**: Real-time price estimation based on weight (kg) and distance (km).
+- **Mandi-Specific Market Prices**: Live crop rates (Wheat, Rice, etc.) that update dynamically based on the selected destination Mandi.
 - **Request Booking**: Seamlessly place pickup requests that get broadcasted to nearby drivers.
+- **Government Schemes**: A centralized aggregator for the latest agricultural support schemes and subsidies.
+- **Success Stories (Shorts)**: A vibrant community feed for sharing 30-second farming tips and success videos with easy upload functionality.
 
 ### 2. 🚛 For Drivers (The Matcher)
 - **Dead Mile Monetization**: Turn empty return trips into profitable hauls.
@@ -21,6 +24,7 @@
 - **Live Operations Feed**: Track active orders, assigned drivers, and fleet status in real-time.
 - **Dynamic Metrics**: Live Average Savings and Total Trip counters based on real platform data.
 - **User Registry**: Comprehensive database of registered farmers and drivers with detailed activity logs.
+- **User Engagement Tools**: Smart "Welcome Back" triggers for returning users to encourage platform exploration.
 
 ---
 

@@ -5,6 +5,7 @@ import CountUp from 'react-countup';
 import { Leaf, IndianRupee, Activity, TrendingUp, Truck, Users, History } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import GovernmentSchemes from './GovernmentSchemes';
 
 export default function MinistryDashboard() {
     const { totalSavings, totalCO2, liveRequests, totalFarmers, activeDrivers, users, drivers } = useApp();
@@ -318,7 +319,7 @@ export default function MinistryDashboard() {
 
                 {/* Tabs */}
                 <div className="bg-white/50 p-1 rounded-xl flex space-x-1">
-                    {['overview', 'fleet', 'history', 'registry'].map((tab) => (
+                    {['overview', 'fleet', 'history', 'registry', 'schemes'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -337,6 +338,11 @@ export default function MinistryDashboard() {
             {activeTab === 'fleet' && renderFleet()}
             {activeTab === 'history' && renderHistory()}
             {activeTab === 'registry' && renderRegistry()}
+            {activeTab === 'schemes' && (
+                <div className="glass-card p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <GovernmentSchemes isAdmin={true} />
+                </div>
+            )}
         </div>
     );
 }

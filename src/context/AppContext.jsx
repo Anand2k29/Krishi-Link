@@ -64,16 +64,20 @@ export const AppProvider = ({ children }) => {
         if (existingUser) {
             return { success: false, message: 'User already exists' };
         }
-        const newUser = { name, password };
+        const newUser = { name, password, loginCount: 1 };
         setUsers(prev => [...prev, newUser]);
         setFarmerProfile(newUser);
         return { success: true };
     };
 
     const loginFarmer = (name, password) => {
-        const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.password === password);
-        if (user) {
-            setFarmerProfile(user);
+        const userIndex = users.findIndex(u => u.name.toLowerCase() === name.toLowerCase() && u.password === password);
+        if (userIndex !== -1) {
+            const updatedUser = { ...users[userIndex], loginCount: (users[userIndex].loginCount || 0) + 1 };
+            const updatedUsers = [...users];
+            updatedUsers[userIndex] = updatedUser;
+            setUsers(updatedUsers);
+            setFarmerProfile(updatedUser);
             return { success: true };
         }
         return { success: false, message: 'Invalid name or password' };
