@@ -2,6 +2,9 @@
 
 **Krishi-Link** is a modern logistics platform prototype designed to bridge the gap between farmers and transport drivers. It aims to reduce post-harvest losses, optimize supply chains, and minimize CO2 emissions by efficiently matching farmer loads with returning empty trucks ("Dead Miles").
 
+## 🎥 Project Demo Video
+[![Krishi-Link Demo]]([https://www.youtube.com/watch?v=jFMc5KHcsjE])
+
 ## 🌟 Key Features
 
 ### 1. 🧑‍🌾 For Farmers (The Dashboard)
