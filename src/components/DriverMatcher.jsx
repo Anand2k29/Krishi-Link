@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, MapPin, Package, IndianRupee, Radar, Navigation, QrCode, User, ScanLine, Leaf, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 import QRScanner from './QRScanner';
+import B2BDeliveries from './B2BDeliveries';
 
 export default function DriverMatcher() {
     const { liveRequests, acceptRequest, completeRequest, driverProfile, t } = useApp();
@@ -122,6 +123,16 @@ export default function DriverMatcher() {
                     History
                     {activeTab === 'history' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600 rounded-full" />}
                 </button>
+                <button
+                    onClick={() => setActiveTab('b2b-deliveries')}
+                    className={cn(
+                        "pb-3 font-bold text-sm transition-colors relative",
+                        activeTab === 'b2b-deliveries' ? "text-emerald-600" : "text-gray-400 hover:text-gray-600"
+                    )}
+                >
+                    B2B Contracts
+                    {activeTab === 'b2b-deliveries' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600 rounded-full" />}
+                </button>
             </div>
 
             <div className="space-y-6">
@@ -237,6 +248,10 @@ export default function DriverMatcher() {
                             </table>
                         </div>
                     </div>
+                )}
+
+                {activeTab === 'b2b-deliveries' && (
+                    <B2BDeliveries />
                 )}
             </div>
 

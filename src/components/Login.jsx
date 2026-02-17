@@ -1,22 +1,61 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Sprout, Truck, Building2, ArrowLeft, Lock, Loader2 } from 'lucide-react';
+import GoogleAuthButton from './GoogleAuthButton';
 
 export default function Login() {
-    const { login } = useApp();
+    const { login, registerB2BWithOAuth } = useApp();
     const [showB2BForm, setShowB2BForm] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false);
     const [loading, setLoading] = useState(false);
     const [orgName, setOrgName] = useState('');
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [error, setError] = useState('');
 
     const handleB2BSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        // Simulate auth
+        setError('');
+
+        // Save B2B buyer profile
+        const buyerProfile = {
+            organizationName: orgName,
+            email: email || 'test@org.com',
+            phone: phone || '',
+            loginTime: new Date().toISOString(),
+            isAuthenticated: true
+        };
+
+        localStorage.setItem('krishi_b2b_buyer', JSON.stringify(buyerProfile));
+
         setTimeout(() => {
             login('buyer');
             setLoading(false);
         }, 1000);
+    };
+
+    const handleGoogleSuccess = (user) => {
+        // Register B2B buyer with Google OAuth
+        const result = registerB2BWithOAuth({
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            uid: user.uid,
+            photoURL: user.photoURL,
+            organizationEmail: user.email,
+            emailVerified: user.emailVerified
+        });
+
+        if (result.success) {
+            login('buyer');
+        } else {
+            setError(result.message || 'Login failed');
+        }
+    };
+
+    const handleGoogleError = (errorMessage) => {
+        setError(errorMessage);
     };
 
     if (showB2BForm) {
@@ -24,7 +63,10 @@ export default function Login() {
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4">
                 <div className="glass-card w-full max-w-md p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-2xl shadow-orange-100">
                     <button
-                        onClick={() => setShowB2BForm(false)}
+                        onClick={() => {
+                            setShowB2BForm(false);
+                            setError('');
+                        }}
                         className="flex items-center text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors group"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> Back
@@ -34,10 +76,31 @@ export default function Login() {
                         <div className="bg-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white shadow-lg">
                             <Building2 size={32} />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-800">Organization Login</h2>
+                        <h2 className="text-2xl font-bold text-gray-800">
+                            {isRegistering ? 'Register Organization' : 'Organization Login'}
+                        </h2>
                         <p className="text-gray-500 text-sm">Access the B2B Wholesale Portal</p>
                     </div>
 
+                    {/* Google Sign-In for Organizations */}
+                    <div className="space-y-4">
+                        <GoogleAuthButton
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            text="Sign in with Organization Email"
+                        />
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-4 bg-white text-gray-500 font-medium">Or use credentials</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Traditional Login Form */}
                     <form onSubmit={handleB2BSubmit} className="space-y-4">
                         <div className="space-y-1.5">
                             <label className="text-sm font-bold text-gray-700 ml-1">Organization / Hotel Name</label>
@@ -45,11 +108,41 @@ export default function Login() {
                                 required
                                 type="text"
                                 value={orgName}
-                                onChange={(e) => setOrgName(e.target.value)}
+                                onChange={(e) => {
+                                    setOrgName(e.target.value);
+                                    setError('');
+                                }}
                                 placeholder="e.g. Taj Hotels, ITC"
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all"
                             />
                         </div>
+
+                        {isRegistering && (
+                            <>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Email Address</label>
+                                    <input
+                                        required
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="procurement@hotel.com"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Phone Number</label>
+                                    <input
+                                        required
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="+91 98765 43210"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 outline-none"
+                                    />
+                                </div>
+                            </>
+                        )}
                         <div className="space-y-1.5">
                             <label className="text-sm font-bold text-gray-700 ml-1">Secure Password</label>
                             <div className="relative">
@@ -58,18 +151,38 @@ export default function Login() {
                                     required
                                     type="password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setError('');
+                                    }}
                                     placeholder="••••••••"
                                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all"
                                 />
                             </div>
                         </div>
+
+                        {error && (
+                            <p className="text-red-500 text-sm font-medium text-center bg-red-50 p-2 rounded-lg border border-red-100">
+                                {error}
+                            </p>
+                        )}
+
                         <button
                             disabled={loading}
                             className="w-full py-4 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200 flex items-center justify-center gap-2 group disabled:opacity-70"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In to Portal'}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isRegistering ? 'Create Account' : 'Sign In to Portal')}
                         </button>
+
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                onClick={() => setIsRegistering(!isRegistering)}
+                                className="text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline"
+                            >
+                                {isRegistering ? 'Already have an account? Login' : 'New supplier? Register Here'}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

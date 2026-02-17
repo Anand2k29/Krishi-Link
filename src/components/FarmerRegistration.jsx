@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { User, MapPin, ArrowRight, Sprout, Lock, LogIn } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { User, ArrowRight, Sprout, Lock, LogIn } from 'lucide-react';
+import VoiceInputButton from './VoiceInputButton';
+import GoogleAuthButton from './GoogleAuthButton';
+import PhoneVerification from './PhoneVerification';
 
 export default function FarmerRegistration() {
-    const { registerFarmer, loginFarmer } = useApp();
+    const { registerFarmer, loginFarmer, registerFarmerWithOAuth } = useApp();
     const [isLoginMode, setIsLoginMode] = useState(false);
+    const [authMethod, setAuthMethod] = useState('traditional'); // 'traditional', 'google', 'phone'
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [googleUser, setGoogleUser] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -31,6 +35,84 @@ export default function FarmerRegistration() {
         }
     };
 
+    const handleGoogleSuccess = (user) => {
+        setGoogleUser(user);
+        setAuthMethod('phone');
+        setError('');
+    };
+
+    const handleGoogleError = (errorMessage) => {
+        setError(errorMessage);
+    };
+
+    const handlePhoneVerified = (phoneData) => {
+        // Register farmer with Google OAuth and phone verification
+        const result = registerFarmerWithOAuth({
+            name: googleUser.displayName || googleUser.email.split('@')[0],
+            email: googleUser.email,
+            uid: googleUser.uid,
+            photoURL: googleUser.photoURL,
+            phoneNumber: phoneData.phoneNumber,
+            phoneVerified: true
+        });
+
+        if (!result.success) {
+            setError(result.message || 'Registration failed');
+        }
+    };
+
+    const handlePhoneError = (errorMessage) => {
+        setError(errorMessage);
+    };
+
+    // If user chose Google auth and needs phone verification
+    if (authMethod === 'phone' && googleUser) {
+        return (
+            <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
+                <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
+                    <div className="text-center mb-6">
+                        {googleUser.photoURL && (
+                            <img
+                                src={googleUser.photoURL}
+                                alt="Profile"
+                                className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-emerald-200"
+                            />
+                        )}
+                        <h2 className="text-2xl font-bold text-gray-800">
+                            Welcome, {googleUser.displayName}!
+                        </h2>
+                        <p className="text-gray-500 mt-2 text-sm">
+                            Verify your phone number to complete registration
+                        </p>
+                    </div>
+
+                    <PhoneVerification
+                        onVerified={handlePhoneVerified}
+                        onError={handlePhoneError}
+                    />
+
+                    {error && (
+                        <p className="text-red-500 text-sm font-medium mt-4 text-center bg-red-50 p-2 rounded-lg border border-red-100">
+                            {error}
+                        </p>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setAuthMethod('traditional');
+                            setGoogleUser(null);
+                            setError('');
+                        }}
+                        className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 underline"
+                    >
+                        ← Back to login options
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
             <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
@@ -52,6 +134,26 @@ export default function FarmerRegistration() {
                     </p>
                 </div>
 
+                {/* Google Sign-In Option */}
+                {!isLoginMode && (
+                    <div className="mb-6">
+                        <GoogleAuthButton
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            text="Sign up with Google"
+                        />
+
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -68,8 +170,15 @@ export default function FarmerRegistration() {
                                     setName(e.target.value);
                                     setError('');
                                 }}
-                                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white"
+                                className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white"
                                 placeholder="Enter your name"
+                            />
+                            <VoiceInputButton
+                                onTranscript={(text) => {
+                                    setName(text);
+                                    setError('');
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
                             />
                         </div>
                     </div>
@@ -101,7 +210,7 @@ export default function FarmerRegistration() {
                         type="submit"
                         className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-emerald-700 transform transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
                     >
-                        {isLoginMode ? 'Login' : 'continue'} <ArrowRight className="ml-2 w-5 h-5" />
+                        {isLoginMode ? 'Login' : 'Continue'} <ArrowRight className="ml-2 w-5 h-5" />
                     </button>
 
                     <div className="text-center mt-4">

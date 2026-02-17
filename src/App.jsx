@@ -12,6 +12,7 @@ import { cn } from './lib/utils';
 import GovernmentSchemes from './components/GovernmentSchemes';
 import FarmerStories from './components/FarmerStories';
 import B2BOrders from './components/B2BOrders';
+import B2BMarketplace from './components/B2BMarketplace';
 import SponsoredContent from './components/SponsoredContent';
 import B2BTracking from './components/B2BTracking';
 
@@ -76,6 +77,12 @@ function App() {
             <SponsoredContent />
           </div>
         );
+      case 'b2b-marketplace':
+        return (
+          <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <B2BMarketplace />
+          </div>
+        );
       default:
         return <FarmerCalculator />;
     }
@@ -83,6 +90,7 @@ function App() {
 
   const allNavItems = [
     { id: 'farmer', label: t('farmer'), icon: Tractor, roles: ['farmer'] },
+    { id: 'b2b-marketplace', label: 'B2B Quotes', icon: Building2, roles: ['farmer'] },
     { id: 'govt-schemes', label: t('schemes'), icon: Shield, roles: ['farmer'] },
     { id: 'stories', label: t('stories'), icon: Play, roles: ['farmer'] },
     { id: 'b2b-orders', label: 'B2B Wholesale', icon: Building2, roles: ['buyer'] },
@@ -92,128 +100,214 @@ function App() {
     { id: 'driver', label: t('driver'), icon: Truck, roles: ['driver'] },
   ];
 
+  // Strict Auth Check: Ensure user is fully authenticated before showing Nav or Dashboard
+  const isAuthenticated =
+    (userRole === 'farmer' && farmerProfile) ||
+    (userRole === 'driver' && driverProfile) ||
+    (userRole === 'buyer' && localStorage.getItem('krishi_b2b_buyer')) ||
+    (userRole === 'admin'); // Admin usually has a simpler flow for now, or assume auth
+
   const navItems = allNavItems.filter(item => item.roles.includes(userRole));
 
   if (!userRole) {
     return <Login />;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-gray-800 font-sans selection:bg-emerald-200">
-      {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-card bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-sm rounded-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setCurrentView('farmer')}>
-              <div className="bg-emerald-600 p-2 rounded-lg text-white">
-                <Sprout size={24} />
-              </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-teal-600">
-                Krishi-Link
-              </span>
-            </div>
+  // If role is selected but not authenticated (e.g. clicked "Farmer" but didn't enter password)
+  // Force them to the registration/login view and HIDE navigation
+  const showNavigation = isAuthenticated;
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+  // Force strict view if not authenticated
+  const effectiveView = isAuthenticated ? currentView : (userRole === 'farmer' ? 'farmer' : userRole === 'driver' ? 'driver' : userRole === 'buyer' ? 'b2b-orders' : currentView);
+
+  return (
+    <div className={`min-h-screen transition-colors duration-300 ${userRole === 'driver' ? 'bg-slate-50' : 'bg-gradient-to-br from-green-50 to-emerald-50'}`}>
+      {/* Navigation Bar - ONLY VISIBLE IF AUTHENTICATED */}
+      {showNavigation && (
+        <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-emerald-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div className="flex items-center justify-between h-full">
+              {/* Logo */}
+              <div className="flex items-center cursor-pointer" onClick={() => setCurrentView('farmer')}>
+                <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg shadow-emerald-200">
+                  <Sprout size={24} />
+                </div>
+                <span className="ml-3 text-xl font-black text-gray-800 tracking-tight">
+                  Krishi<span className="text-emerald-600">-Link</span>
+                </span>
+              </div>
+
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-1">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id)}
+                    className={cn(
+                      "flex items-center px-4 py-2 rounded-lg text-sm font-bold transition-all relative group",
+                      currentView === item.id
+                        ? "text-emerald-700 bg-emerald-50"
+                        : "text-gray-500 hover:text-emerald-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <div className={cn(
+                      "p-2 rounded-lg mr-2 transition-colors",
+                      currentView === item.id ? "bg-emerald-200 text-emerald-800" : "bg-gray-100 text-gray-500 group-hover:bg-emerald-100 group-hover:text-emerald-600"
+                    )}>
+                      <item.icon size={18} />
+                    </div>
+                    {item.label}
+                    {currentView === item.id && (
+                      <motion.div
+                        layoutId="navbar-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Right Actions */}
+              <div className="hidden md:flex items-center space-x-3">
+                {(userRole === 'farmer' || userRole === 'admin') && (
+                  <button
+                    onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-600 hover:border-emerald-500 hover:text-emerald-600 transition-all flex items-center gap-2"
+                  >
+                    <Sparkles size={16} className="text-yellow-500" />
+                    {language === 'en' ? 'हिन्दी' : 'English'}
+                  </button>
+                )}
+
+                <button
+                  onClick={logout}
+                  className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {t('logout')}
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <div className="md:hidden">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+                >
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden glass-card mt-2 mx-4 p-2 space-y-1 absolute left-0 right-0 top-14 shadow-xl border border-gray-100">
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentView(item.id)}
+                  onClick={() => {
+                    setCurrentView(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={cn(
-                    "flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center w-full px-4 py-3 rounded-lg text-base font-medium transition-colors",
                     currentView === item.id
-                      ? "bg-emerald-100 text-emerald-800 shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-emerald-50 text-emerald-800"
+                      : "text-gray-600 hover:bg-gray-50"
                   )}
                 >
-                  <item.icon className="w-4 h-4 mr-2" />
+                  <item.icon className="w-5 h-5 mr-3" />
                   {item.label}
                 </button>
               ))}
-              <div className="h-6 w-px bg-gray-200 mx-2"></div>
-
-              {/* Language Toggle */}
-              {currentView !== 'b2b-orders' && currentView !== 'b2b-tracking' && (
+              <div className="border-t border-gray-100 my-2 pt-2 space-y-2">
                 <button
-                  onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                  className="flex items-center px-4 py-2 rounded-lg text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-all border border-emerald-100"
+                  onClick={() => {
+                    setLanguage(language === 'en' ? 'hi' : 'en');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full px-4 py-3 rounded-lg text-base font-bold text-emerald-700 hover:bg-emerald-50 transition-colors"
                 >
+                  <Sparkles className="w-5 h-5 mr-3" />
                   {language === 'en' ? 'हिन्दी' : 'English'}
                 </button>
-              )}
-
-              <button
-                onClick={logout}
-                className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                {t('logout')}
-              </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-5 h-5 mr-3" />
+                  {t('logout')}
+                </button>
+              </div>
             </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
-              >
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden glass-card mt-2 mx-4 p-2 space-y-1 absolute left-0 right-0 top-14 shadow-xl border border-gray-100">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setCurrentView(item.id);
-                  setIsMobileMenuOpen(false);
-                }}
-                className={cn(
-                  "flex items-center w-full px-4 py-3 rounded-lg text-base font-medium transition-colors",
-                  currentView === item.id
-                    ? "bg-emerald-50 text-emerald-800"
-                    : "text-gray-600 hover:bg-gray-50"
-                )}
-              >
-                <item.icon className="w-5 h-5 mr-3" />
-                {item.label}
-              </button>
-            ))}
-            <div className="border-t border-gray-100 my-2 pt-2 space-y-2">
-              <button
-                onClick={() => {
-                  setLanguage(language === 'en' ? 'hi' : 'en');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center w-full px-4 py-3 rounded-lg text-base font-bold text-emerald-700 hover:bg-emerald-50 transition-colors"
-              >
-                <Sparkles className="w-5 h-5 mr-3" />
-                {language === 'en' ? 'हिन्दी' : 'English'}
-              </button>
-              <button
-                onClick={() => {
-                  logout();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <LogOut className="w-5 h-5 mr-3" />
-                {t('logout')}
-              </button>
-            </div>
-          </div>
-        )}
-      </nav>
+          )}
+        </nav>
+      )}
 
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-64px)] flex flex-col">
-        {renderView()}
+      <main className={`${showNavigation ? 'pt-24' : 'pt-0'} pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-64px)] flex flex-col`}>
+        {(() => {
+          // Redefine render logic with effectiveView
+          switch (effectiveView) {
+            case 'farmer':
+              return farmerProfile ? <FarmerCalculator /> : <FarmerRegistration />;
+            case 'ministry':
+              return <MinistryDashboard />;
+            case 'driver':
+              return driverProfile ? <DriverMatcher /> : <DriverRegistration />;
+            case 'govt-schemes':
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <GovernmentSchemes />
+                </div>
+              );
+            case 'stories':
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <FarmerStories />
+                </div>
+              );
+            case 'b2b-orders':
+              // If buyer is not authenticated, showing B2BOrders might be okay IF B2BOrders handles it, 
+              // but we forced effectiveView to something else if not authenticated above?
+              // actually effectiveView logic for buyer was: userRole === 'buyer' ? 'b2b-orders' : currentView
+              // Wait, if not authenticated, we want to show Login?
+              // The App.jsx structure assumes "FarmerRegistration" is the login page for Farmers.
+              // For Buyers, "B2BOrders" contains the login? NO, Login.jsx contained B2B Login.
+              // If userRole is 'buyer' but not authenticated, this should show Login.jsx?
+              // Actually Login.jsx sets role to 'buyer' only AFTER authentication for B2B.
+              // So if userRole is 'buyer', they are already authenticated by definition of Login.jsx.
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <B2BOrders />
+                </div>
+              );
+            case 'b2b-tracking':
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <B2BTracking />
+                </div>
+              );
+            case 'sponsored':
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <SponsoredContent />
+                </div>
+              );
+            case 'b2b-marketplace':
+              return (
+                <div className="glass-card p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <B2BMarketplace />
+                </div>
+              );
+            default:
+              return <FarmerCalculator />;
+          }
+        })()}
       </main>
 
       {/* Welcome Back Popup */}

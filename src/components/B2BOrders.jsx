@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, ShoppingCart, Package, ArrowRight, TrendingUp, Users, CheckCircle2, X, ClipboardList, Calendar, MessageSquare, Send, Sparkles, ChevronRight, Truck, ShieldCheck } from 'lucide-react';
+import { Building2, ShoppingCart, Package, ArrowRight, TrendingUp, Users, CheckCircle2, X, ClipboardList, Calendar, MessageSquare, Send, Sparkles, ChevronRight, Truck, ShieldCheck, Mic, ScanLine } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import VoiceInputButton from './VoiceInputButton';
+import QRScanner from './QRScanner';
 
 const B2BOrders = () => {
-    const { t, addB2BOrder, addB2BQuote, b2bOrders } = useApp();
+    const { t, addB2BOrder, addB2BQuote, b2bOrders, b2bQuotes, approveB2BQuote } = useApp();
     const [showQuoteModal, setShowQuoteModal] = useState(false);
     const [selectedFPO, setSelectedFPO] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
     const [quoteData, setQuoteData] = useState({
         commodity: '',
         quantity: '',
@@ -114,14 +117,24 @@ const B2BOrders = () => {
                     </h2>
                     <p className="text-gray-600 mt-1">Direct procurement for hotels, restaurants, and retail chains.</p>
                 </div>
-                <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
-                    <div className="bg-emerald-600 p-2 rounded-lg text-white">
-                        <TrendingUp size={20} />
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
+                        <div className="bg-emerald-600 p-2 rounded-lg text-white">
+                            <TrendingUp size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total ESG Impact</p>
+                            <p className="text-sm font-black text-gray-900">{totalESG} Tons CO2 Saved</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total ESG Impact</p>
-                        <p className="text-sm font-black text-gray-900">{totalESG} Tons CO2 Saved</p>
-                    </div>
+                    <button
+                        onClick={() => setShowScanner(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl shadow-lg transition-all flex items-center gap-2 font-bold"
+                        title="Scan QR Code for Delivery Verification"
+                    >
+                        <ScanLine size={20} />
+                        <span className="hidden md:inline">Verify Delivery</span>
+                    </button>
                 </div>
             </div>
 
@@ -143,6 +156,52 @@ const B2BOrders = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Farmer Responses Section */}
+            {b2bQuotes.filter(q => q.status === 'Responded').length > 0 && (
+                <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <MessageSquare className="text-orange-600" />
+                        Farmer Responses & Offers
+                    </h3>
+                    <div className="glass-card overflow-hidden border border-orange-100">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-orange-50/50">
+                                    <tr className="text-[10px] uppercase font-black text-gray-400 tracking-wider">
+                                        <th className="px-6 py-4">Quote ID</th>
+                                        <th className="px-6 py-4">Farmer</th>
+                                        <th className="px-6 py-4">Commodity</th>
+                                        <th className="px-6 py-4">Offer Price</th>
+                                        <th className="px-6 py-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {b2bQuotes.filter(q => q.status === 'Responded').map((quote) => (
+                                        <tr key={quote.id} className="text-sm hover:bg-orange-50/10 transition-colors">
+                                            <td className="px-6 py-4 font-mono font-bold text-gray-500">{quote.id}</td>
+                                            <td className="px-6 py-4 font-bold text-gray-900">{quote.farmerName}</td>
+                                            <td className="px-6 py-4">{quote.commodity} ({quote.quantity} Tons)</td>
+                                            <td className="px-6 py-4 font-bold text-emerald-700">₹{quote.yourOffer}/Ton</td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => {
+                                                        approveB2BQuote(quote.id);
+                                                        alert("Quote Approved! Waiting for Farmer's Final Confirmation.");
+                                                    }}
+                                                    className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-bold hover:bg-orange-700 transition-all flex items-center gap-1 shadow-md"
+                                                >
+                                                    <CheckCircle2 size={14} /> Approve Offer
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Products Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -398,14 +457,20 @@ const B2BOrders = () => {
                                                 <label className="text-xs font-bold text-gray-500 flex items-center gap-1">
                                                     <Package className="w-3 h-3" /> Commodity
                                                 </label>
-                                                <input
-                                                    required
-                                                    type="text"
-                                                    placeholder="e.g. Potatoes"
-                                                    value={quoteData.commodity}
-                                                    onChange={(e) => setQuoteData({ ...quoteData, commodity: e.target.value })}
-                                                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50"
-                                                />
+                                                <div className="relative group">
+                                                    <input
+                                                        required
+                                                        type="text"
+                                                        placeholder="e.g. Potatoes"
+                                                        value={quoteData.commodity}
+                                                        onChange={(e) => setQuoteData({ ...quoteData, commodity: e.target.value })}
+                                                        className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50"
+                                                    />
+                                                    <VoiceInputButton
+                                                        onTranscript={(text) => setQuoteData({ ...quoteData, commodity: text })}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                                                    />
+                                                </div>
                                             </div>
                                             <div className="space-y-1.5">
                                                 <label className="text-xs font-bold text-gray-500 flex items-center gap-1">
@@ -425,26 +490,38 @@ const B2BOrders = () => {
                                             <label className="text-xs font-bold text-gray-500 flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" /> Delivery Timeline
                                             </label>
-                                            <input
-                                                required
-                                                type="text"
-                                                placeholder="e.g. Within 15 days"
-                                                value={quoteData.deadline}
-                                                onChange={(e) => setQuoteData({ ...quoteData, deadline: e.target.value })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50"
-                                            />
+                                            <div className="relative group">
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    placeholder="e.g. Within 15 days"
+                                                    value={quoteData.deadline}
+                                                    onChange={(e) => setQuoteData({ ...quoteData, deadline: e.target.value })}
+                                                    className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50"
+                                                />
+                                                <VoiceInputButton
+                                                    onTranscript={(text) => setQuoteData({ ...quoteData, deadline: text })}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                                                />
+                                            </div>
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-bold text-gray-500 flex items-center gap-1">
                                                 <MessageSquare className="w-3 h-3" /> Special Requirements
                                             </label>
-                                            <textarea
-                                                placeholder="e.g. Export quality, specific moisture level..."
-                                                rows="3"
-                                                value={quoteData.notes}
-                                                onChange={(e) => setQuoteData({ ...quoteData, notes: e.target.value })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50 resize-none"
-                                            ></textarea>
+                                            <div className="relative group">
+                                                <textarea
+                                                    placeholder="e.g. Export quality, specific moisture level..."
+                                                    rows="3"
+                                                    value={quoteData.notes}
+                                                    onChange={(e) => setQuoteData({ ...quoteData, notes: e.target.value })}
+                                                    className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-100 focus:border-orange-500 outline-none transition-all bg-gray-50 resize-none"
+                                                ></textarea>
+                                                <VoiceInputButton
+                                                    onTranscript={(text) => setQuoteData({ ...quoteData, notes: text })}
+                                                    className="absolute right-2 top-3"
+                                                />
+                                            </div>
                                         </div>
                                         <button className="w-full py-4 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg flex items-center justify-center gap-2 group">
                                             Submit Request <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -456,6 +533,11 @@ const B2BOrders = () => {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* QR Scanner Modal */}
+            {showScanner && (
+                <QRScanner onClose={() => setShowScanner(false)} />
+            )}
         </div>
     );
 };

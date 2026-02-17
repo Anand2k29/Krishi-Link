@@ -25,6 +25,22 @@ const TRANSLATIONS = {
         speedyDelivery: 'Speedy Delivery',
         stories: 'Stories',
         schemes: 'Schemes',
+        Village: 'Village',
+        Mandi: 'Mandi',
+        'Search crops in': 'Search crops in',
+        Rampur: 'Rampur',
+        Kishangarh: 'Kishangarh',
+        Badlapur: 'Badlapur',
+        Sonarpur: 'Sonarpur',
+        Madhopur: 'Madhopur',
+        Begampur: 'Begampur',
+        Chandpur: 'Chandpur',
+        Dharmapur: 'Dharmapur',
+        Lakshmanpur: 'Lakshmanpur',
+        'Azadpur Mandi': 'Azadpur Mandi',
+        'Ghazipur Mandi': 'Ghazipur Mandi',
+        'Okhla Mandi': 'Okhla Mandi',
+        'Keshopur Mandi': 'Keshopur Mandi',
     },
     hi: {
         welcome: 'स्वागत है',
@@ -48,6 +64,22 @@ const TRANSLATIONS = {
         speedyDelivery: 'तेज़ डिलीवरी',
         stories: 'कहानियां',
         schemes: 'योजनाएं',
+        Village: 'गांव',
+        Mandi: 'मंडी',
+        'Search crops in': 'फसलों की तलाश करें',
+        Rampur: 'रामपुर',
+        Kishangarh: 'किशनगढ़',
+        Badlapur: 'बदलापुर',
+        Sonarpur: 'सोनारपुर',
+        Madhopur: 'माधोपुर',
+        Begampur: 'बेगमपुर',
+        Chandpur: 'चांदपुर',
+        Dharmapur: 'धर्मपुर',
+        Lakshmanpur: 'लक्ष्मणपुर',
+        'Azadpur Mandi': 'आज़ादपुर मंडी',
+        'Ghazipur Mandi': 'गाजीपुर मंडी',
+        'Okhla Mandi': 'ओखला मंडी',
+        'Keshopur Mandi': 'केशोपुर मंडी',
     }
 };
 
@@ -121,6 +153,22 @@ export const AppProvider = ({ children }) => {
         return { success: false, message: 'Invalid name or password' };
     };
 
+    const registerFarmerWithOAuth = (oauthData) => {
+        const existingUser = users.find(u => u.email === oauthData.email || u.uid === oauthData.uid);
+        if (existingUser) {
+            // Update existing user with new data
+            const updatedUser = { ...existingUser, ...oauthData, loginCount: (existingUser.loginCount || 0) + 1 };
+            const updatedUsers = users.map(u => u.email === oauthData.email || u.uid === oauthData.uid ? updatedUser : u);
+            setUsers(updatedUsers);
+            setFarmerProfile(updatedUser);
+            return { success: true };
+        }
+        const newUser = { ...oauthData, loginCount: 1, authMethod: 'google' };
+        setUsers(prev => [...prev, newUser]);
+        setFarmerProfile(newUser);
+        return { success: true };
+    };
+
     const [userRole, setUserRole] = useState(null);
     const [driverProfile, setDriverProfile] = useState(() => {
         const savedSession = localStorage.getItem('krishi_current_driver');
@@ -168,7 +216,29 @@ export const AppProvider = ({ children }) => {
         return { success: false, message: 'Invalid credentials' };
     };
 
+    const registerDriverWithOAuth = (oauthData) => {
+        const existingDriver = drivers.find(d => d.email === oauthData.email || d.uid === oauthData.uid);
+        if (existingDriver) {
+            // Update existing driver with new data
+            const updatedDriver = { ...existingDriver, ...oauthData, stats: existingDriver.stats || { jobs: 0, co2Saved: 0 } };
+            const updatedDrivers = drivers.map(d => d.email === oauthData.email || d.uid === oauthData.uid ? updatedDriver : d);
+            setDrivers(updatedDrivers);
+            setDriverProfile(updatedDriver);
+            return { success: true };
+        }
+        const newDriver = { ...oauthData, status: 'Available', stats: { jobs: 0, co2Saved: 0 }, authMethod: 'google' };
+        setDrivers(prev => [...prev, newDriver]);
+        setDriverProfile(newDriver);
+        return { success: true };
+    };
+
     const login = (role) => {
+        // Clear conflicting profiles when switching roles
+        if (role !== 'farmer') setFarmerProfile(null);
+        if (role !== 'driver') setDriverProfile(null);
+
+        // Ensure proper clean up of localStorage for other roles if necessary
+        // but for now, just clearing state is enough for the session.
         setUserRole(role);
     };
 
@@ -176,6 +246,30 @@ export const AppProvider = ({ children }) => {
         setUserRole(null);
         setFarmerProfile(null);
         setDriverProfile(null);
+    };
+
+    // B2B Buyers State
+    const [b2bBuyers, setB2BBuyers] = useState(() => {
+        const savedBuyers = localStorage.getItem('krishi_b2b_buyers');
+        return savedBuyers ? JSON.parse(savedBuyers) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('krishi_b2b_buyers', JSON.stringify(b2bBuyers));
+    }, [b2bBuyers]);
+
+    const registerB2BWithOAuth = (oauthData) => {
+        const existingBuyer = b2bBuyers.find(b => b.email === oauthData.email || b.uid === oauthData.uid);
+        if (existingBuyer) {
+            // Update existing buyer with new data
+            const updatedBuyer = { ...existingBuyer, ...oauthData, loginCount: (existingBuyer.loginCount || 0) + 1 };
+            const updatedBuyers = b2bBuyers.map(b => b.email === oauthData.email || b.uid === oauthData.uid ? updatedBuyer : b);
+            setB2BBuyers(updatedBuyers);
+            return { success: true };
+        }
+        const newBuyer = { ...oauthData, loginCount: 1, authMethod: 'google', registeredAt: new Date().toISOString() };
+        setB2BBuyers(prev => [...prev, newBuyer]);
+        return { success: true };
     };
 
     const acceptRequest = (id, driverName) => {
@@ -245,6 +339,97 @@ export const AppProvider = ({ children }) => {
         setB2BQuotes(prev => [newQuote, ...prev]);
     };
 
+    const submitQuoteResponse = (response) => {
+        setB2BQuotes(prev => prev.map(quote =>
+            quote.id === response.quoteId
+                ? {
+                    ...quote,
+                    status: 'Responded',
+                    yourOffer: response.pricePerTon,
+                    farmerResponse: response,
+                    respondedAt: new Date().toISOString()
+                }
+                : quote
+        ));
+    };
+
+    const approveB2BQuote = (quoteId) => {
+        setB2BQuotes(prev => prev.map(quote =>
+            quote.id === quoteId
+                ? { ...quote, status: 'BuyerApproved', approvedAt: new Date().toISOString() }
+                : quote
+        ));
+    };
+
+    const confirmB2BOrder = (quoteId) => {
+        const quote = b2bQuotes.find(q => q.id === quoteId);
+        if (!quote) return;
+
+        setB2BQuotes(prev => prev.map(q =>
+            q.id === quoteId
+                ? { ...q, status: 'Confirmed', confirmedAt: new Date().toISOString() }
+                : q
+        ));
+
+        // Create Delivery Request ONLY after final confirmation
+        createB2BDelivery({
+            commodity: quote.commodity,
+            quantity: parseFloat(quote.farmerResponse?.availableQuantity || quote.quantity),
+            ratePerTon: parseFloat(quote.yourOffer) * 0.1,
+            source: quote.farmerResponse?.source || 'Farm Location',
+            destination: quote.farmerResponse?.destination || 'B2B Buyer Location',
+            timeline: quote.farmerResponse?.deliveryDays || quote.deadline,
+            farmerName: quote.farmerName || 'Current Farmer',
+            quoteId: quote.id
+        });
+    };
+
+    // B2B Delivery Requests State
+    const [b2bDeliveryRequests, setB2BDeliveryRequests] = useState(() => {
+        const savedRequests = localStorage.getItem('krishi_b2b_deliveries');
+        return savedRequests ? JSON.parse(savedRequests) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('krishi_b2b_deliveries', JSON.stringify(b2bDeliveryRequests));
+    }, [b2bDeliveryRequests]);
+
+    const createB2BDelivery = (deliveryData) => {
+        const newDelivery = {
+            ...deliveryData,
+            id: `B2BD-${Date.now().toString().slice(-4)}`,
+            createdAt: new Date().toISOString(),
+            status: 'Pending',
+            assignedDrivers: []
+        };
+        setB2BDeliveryRequests(prev => [newDelivery, ...prev]);
+        return newDelivery;
+    };
+
+    const acceptB2BDelivery = ({ deliveryId, driverName, isSplit, splitData }) => {
+        setB2BDeliveryRequests(prev => prev.map(delivery => {
+            if (delivery.id === deliveryId) {
+                if (isSplit && splitData) {
+                    return {
+                        ...delivery,
+                        status: 'Accepted',
+                        assignedDrivers: [
+                            { ...splitData.driver1, acceptedAt: new Date().toISOString() },
+                            { ...splitData.driver2, status: 'Pending' }
+                        ]
+                    };
+                } else {
+                    return {
+                        ...delivery,
+                        status: 'Accepted',
+                        assignedDrivers: [{ name: driverName, percentage: 100, load: delivery.quantity, acceptedAt: new Date().toISOString() }]
+                    };
+                }
+            }
+            return delivery;
+        }));
+    };
+
     const value = {
         totalFarmers,
         totalSavings,
@@ -258,9 +443,11 @@ export const AppProvider = ({ children }) => {
         logout,
         farmerProfile,
         registerFarmer,
+        registerFarmerWithOAuth,
         loginFarmer,
         driverProfile,
         registerDriver,
+        registerDriverWithOAuth,
         loginDriver,
         completeRequest,
         updateDriverStatus,
@@ -272,7 +459,15 @@ export const AppProvider = ({ children }) => {
         b2bOrders,
         b2bQuotes,
         addB2BOrder,
-        addB2BQuote
+        addB2BQuote,
+        submitQuoteResponse,
+        approveB2BQuote,
+        confirmB2BOrder,
+        b2bBuyers,
+        registerB2BWithOAuth,
+        b2bDeliveryRequests,
+        createB2BDelivery,
+        acceptB2BDelivery
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

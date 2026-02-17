@@ -14,28 +14,31 @@
 - **Mandi-Specific Market Prices**: Live crop rates that update dynamically based on the selected destination Mandi.
 - **Request Booking**: Seamlessly place pickup requests that get broadcasted to nearby drivers.
 - **Government Schemes**: A centralized aggregator for the latest agricultural support schemes and subsidies.
+- **B2B Quote Marketplace**: View and respond to open bulk procurement requests from buyers with competitive offers.
+- **Voice Command Support**: Hands-free voice input for accessibility (supports English/Hindi) across stories and forms.
 
 ### 2. 🏨 For B2B Buyers (Wholesale Portal)
 - **Direct Procurement**: Secure portal for hotels and retail chains to source directly from verified FPOs.
 - **Logistics Integration**: "Ex-Farm" vs "Delivered" pricing with real-time freight estimation.
 - **Sustainability (ESG) Tracking**: Carbon mileage reduction and CO2 savings metrics per product listing.
 - **FPO Digital Showcase**: Detailed FPO profiles with member counts, verified trust badges, and audit compliance reports.
-- **Request Bulk Quote**: Functional inquiry system for large-scale custom procurement contracts.
+- **Request Bulk Quote**: Functional inquiry system for large-scale custom procurement contracts (connects to Farmer Marketplace).
 - **Payment Transparency**: Dedicated history section to track orders and secure **Escrow Status**.
+- **Order Verification**: Integrated **QR Code Scanner** to verify deliveries at the destination.
 
 ### 3. 🚛 For Drivers (The Matcher)
-- **Gamification & Badges**: Earn achievements like **"CO2 Warrior"** and **"Speedy Delivery"** based on job performance and fuel efficiency.
-- **Dead Mile Monetization**: Turn empty return trips into profitable hauls.
-- **Smart Matching**: View available loads filtered by route and proximity.
+- **Gamification & Badges**: Earn achievements like **"CO2 Warrior"**, **"Speedy Delivery"**, and **"Pro Driver"** based on job performance.
+- **Dead Mile Monetization**: Turn empty return trips into profitable hauls with a dedicated **Dead Mile Toggle**.
+- **Split Load Feature**: Share large B2B loads with a partner driver to optimize capacity and earnings.
+- **B2B Contracts Tab**: Access premium, verified bulk loads with higher rates.
+- **Smart Matching**: View available loads filtered by route and proximity with **Exclusive Load Locking** (once accepted, a load is hidden from others).
 - **QR Verification**: Built-in QR scanner to verify bookings at pickup points.
 - **Earnings Tracker**: Visualize potential earnings and track completed job history.
 
 ### 4. 🏛️ For Ministry/Admin (The Dashboard)
-- **Real-Time Analytics Graph**: Dynamic weekly impact graph that updates instantly as orders are placed.
-- **B2B Oversight Dashboard**: Monitor platform-wide corporate procurement and ESG impact.
-- **Payment Escrow Pipeline**: Visual tracking of financial transactions (Holding, Settling, Settled) to ensure FPO safety.
-- **Platform Sustainability Audit**: High-level dashboard for tracking Direct Sourcing Adoption and Carbon Miles.
-- **Live Operations Feed**: Track active orders, assigned drivers, and fleet status in real-time.
+- **Live Procurement Pipeline**: Real-time view of active contracts, buyer-farmer connections, and delivery status.
+- **Sustainability Audit**: Metrics for Direct Sourcing Adoption, Carbon Footprint reduction, and Logistics Optimization.
+- **Escrow Liquidity Index**: Financial health monitoring of the platform's secure payment pipeline.
 
 ---
 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, Play, User, Plus, X, Upload, Video, Info } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, Play, User, Plus, X, Upload, Video, Info, Mic } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { cn } from '../lib/utils';
+import VoiceInputButton from './VoiceInputButton';
 
 const INITIAL_STORIES = [
     {
@@ -249,14 +250,20 @@ export default function FarmerStories() {
                                 <div className="space-y-4">
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Story Title</label>
-                                        <input
-                                            type="text"
-                                            required
-                                            placeholder="e.g. My experience with smart irrigation"
-                                            className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-gray-700"
-                                            value={newStory.title}
-                                            onChange={(e) => setNewStory({ ...newStory, title: e.target.value })}
-                                        />
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="e.g. My experience with smart irrigation"
+                                                className="w-full p-4 pr-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-gray-700"
+                                                value={newStory.title}
+                                                onChange={(e) => setNewStory({ ...newStory, title: e.target.value })}
+                                            />
+                                            <VoiceInputButton
+                                                onTranscript={(text) => setNewStory({ ...newStory, title: text })}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                            />
+                                        </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -274,13 +281,19 @@ export default function FarmerStories() {
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tags (comma separated)</label>
-                                            <input
-                                                type="text"
-                                                placeholder="tips, harvest, drone"
-                                                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-gray-700"
-                                                value={newStory.tags}
-                                                onChange={(e) => setNewStory({ ...newStory, tags: e.target.value })}
-                                            />
+                                            <div className="relative group">
+                                                <input
+                                                    type="text"
+                                                    placeholder="tips, harvest, drone"
+                                                    className="w-full p-4 pr-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-gray-700"
+                                                    value={newStory.tags}
+                                                    onChange={(e) => setNewStory({ ...newStory, tags: e.target.value })}
+                                                />
+                                                <VoiceInputButton
+                                                    onTranscript={(text) => setNewStory({ ...newStory, tags: text })}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 

@@ -4,38 +4,41 @@ import { LayoutDashboard, TrendingUp, Package, Users, MapPin, CheckCircle2, Cloc
 import { useApp } from '../context/AppContext';
 
 const B2BTracking = () => {
-    const { t, b2bOrders } = useApp();
+    const { t, b2bOrders, b2bQuotes, b2bDeliveryRequests } = useApp();
 
-    const defaultOrders = [
-        {
-            id: 'B2B-101',
-            buyer: 'Taj Hotels Group',
-            fpo: 'Green Valley Farmers Group',
-            product: 'Organic Wheat',
-            quantity: '50 Tons',
-            status: 'In-Transit',
-            escrowStatus: 'Processing',
-            source: 'Punjab',
-            destination: 'New Delhi',
-            progress: 75,
-            co2Impact: '1.2 Tons'
-        },
-        {
-            id: 'B2B-102',
-            buyer: 'ITC Restaurants',
-            fpo: 'Sahyadri Farmers Producer Co.',
-            product: 'Red Onions',
-            quantity: '30 Tons',
-            status: 'Delivered',
-            escrowStatus: 'Settled',
-            source: 'Maharashtra',
-            destination: 'Bangalore',
-            progress: 100,
-            co2Impact: '0.8 Tons'
-        },
-    ];
+    // Transform B2B Quotes (Confirmed/Approved) into trackable orders
+    const quoteOrders = b2bQuotes
+        .filter(q => q.status === 'Confirmed' || q.status === 'BuyerApproved')
+        .map(q => ({
+            id: q.id,
+            buyer: 'Verified Buyer', // In real app, would lookup buyer details
+            fpo: q.farmerName || 'Registered FPO',
+            product: q.commodity,
+            quantity: `${q.quantity} Tons`,
+            status: q.status === 'Confirmed' ? 'Processing' : 'Awaiting Final Confirm',
+            escrowStatus: 'Secure',
+            source: q.farmerResponse?.source || 'Farm Gate',
+            destination: 'Buyer Hub',
+            progress: q.status === 'Confirmed' ? 25 : 10,
+            co2Impact: '0.5 Tons' // Placeholder calculation
+        }));
 
-    const allOrders = [...b2bOrders, ...defaultOrders];
+    // Transform Delivery Requests into trackable orders
+    const deliveryOrders = b2bDeliveryRequests.map(d => ({
+        id: d.id,
+        buyer: 'Distribution Center',
+        fpo: d.farmerName,
+        product: d.commodity,
+        quantity: `${d.quantity} Tons`,
+        status: d.status === 'Completed' ? 'Delivered' : d.status === 'Accepted' ? 'In-Transit' : 'Pending',
+        escrowStatus: d.status === 'Completed' ? 'Settled' : 'In-Escrow',
+        source: d.source,
+        destination: d.destination,
+        progress: d.status === 'Completed' ? 100 : d.status === 'Accepted' ? 60 : 0,
+        co2Impact: '1.2 Tons'
+    }));
+
+    const allOrders = [...quoteOrders, ...deliveryOrders];
 
     const totalESG = allOrders.reduce((acc, order) => {
         const val = parseFloat(order.co2Impact) || 0;

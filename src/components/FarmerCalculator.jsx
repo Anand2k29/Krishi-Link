@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import QRCode from 'react-qr-code';
 import { useApp } from '../context/AppContext';
-import { Leaf, IndianRupee, Truck, ArrowRight, MapPin, Navigation, TrendingUp, TrendingDown, Search, Filter, Wheat, Sprout, CloudRain, Sun, Wind, Share2 } from 'lucide-react';
+import { Leaf, IndianRupee, Truck, ArrowRight, MapPin, Navigation, TrendingUp, TrendingDown, Search, Filter, Wheat, Sprout, CloudRain, Sun, Wind, Share2, Mic } from 'lucide-react';
 import { cn } from '../lib/utils';
+import VoiceInputButton from './VoiceInputButton';
 
 const VILLAGES = ['Rampur', 'Kishangarh', 'Badlapur', 'Sonarpur', 'Madhopur', 'Begampur', 'Chandpur', 'Dharmapur', 'Lakshmanpur'];
 const MANDIS = ['Azadpur Mandi', 'Ghazipur Mandi', 'Okhla Mandi', 'Keshopur Mandi'];
@@ -124,18 +125,22 @@ export default function FarmerCalculator() {
                             <h2 className="text-2xl font-bold text-gray-800">{t('marketPrices')}</h2>
                         </div>
                         <div className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                            Live: {targetMandi}
+                            Live: {t(targetMandi)}
                         </div>
                     </div>
 
-                    <div className="relative mb-6">
+                    <div className="relative mb-6 group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                             type="text"
-                            placeholder={"Search crops in " + targetMandi + "..."}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                            placeholder={t('Search crops in') + " " + t(targetMandi) + "..."}
+                            className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <VoiceInputButton
+                            onTranscript={(text) => setSearchTerm(text)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2"
                         />
                     </div>
 
@@ -172,7 +177,7 @@ export default function FarmerCalculator() {
                                 <weatherAlert.icon className="w-5 h-5" />
                             </div>
                             <div>
-                                <p className="text-[11px] font-bold uppercase tracking-wider opacity-80">{t('weatherWarning')}: {sourceVillage}</p>
+                                <p className="text-[11px] font-bold uppercase tracking-wider opacity-80">{t('weatherWarning')}: {t(sourceVillage)}</p>
                                 <p className="text-sm font-medium leading-snug">
                                     {weatherAlert.type === 'rain' ? t('heavyRain') :
                                         weatherAlert.type === 'wind' ? "High winds expected. Secure your loads during transport." :
@@ -188,7 +193,7 @@ export default function FarmerCalculator() {
                             </div>
                             <div>
                                 <p className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">Market Insight</p>
-                                <p className="text-sm text-gray-700 leading-snug">Prices in **{targetMandi}** are fluctuating. Compare with other Mandis for the best deal.</p>
+                                <p className="text-sm text-gray-700 leading-snug">Prices in **{t(targetMandi)}** are fluctuating. Compare with other Mandis for the best deal.</p>
                             </div>
                         </div>
                     </div>
@@ -216,26 +221,26 @@ export default function FarmerCalculator() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-500 uppercase flex items-center">
-                                        <MapPin className="w-3 h-3 mr-1" /> {t('farmer')} Village
+                                        <MapPin className="w-3 h-3 mr-1" /> {t('farmer')} {t('Village')}
                                     </label>
                                     <select
                                         value={sourceVillage}
                                         onChange={(e) => setSourceVillage(e.target.value)}
                                         className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
                                     >
-                                        {VILLAGES.map(v => <option key={v} value={v}>{v}</option>)}
+                                        {VILLAGES.map(v => <option key={v} value={v}>{t(v)}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-500 uppercase flex items-center">
-                                        <Navigation className="w-3 h-3 mr-1" /> {t('driver')} Mandi
+                                        <Navigation className="w-3 h-3 mr-1" /> {t('driver')} {t('Mandi')}
                                     </label>
                                     <select
                                         value={targetMandi}
                                         onChange={(e) => setTargetMandi(e.target.value)}
                                         className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
                                     >
-                                        {MANDIS.map(m => <option key={m} value={m}>{m}</option>)}
+                                        {MANDIS.map(m => <option key={m} value={m}>{t(m)}</option>)}
                                     </select>
                                 </div>
                             </div>
@@ -346,12 +351,12 @@ export default function FarmerCalculator() {
 
                                 <div className="border-t border-gray-100 pt-4 mt-4 text-left space-y-2">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Village:</span>
-                                        <span className="font-medium">{bookingDetails.sourceVillage}</span>
+                                        <span className="text-gray-500">{t('Village')}:</span>
+                                        <span className="font-medium">{t(bookingDetails.sourceVillage)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Mandi:</span>
-                                        <span className="font-medium">{bookingDetails.targetMandi}</span>
+                                        <span className="text-gray-500">{t('Mandi')}:</span>
+                                        <span className="font-medium">{t(bookingDetails.targetMandi)}</span>
                                     </div>
                                 </div>
 
