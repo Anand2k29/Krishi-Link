@@ -12,6 +12,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+console.log('Firebase Config Debug:', {
+    apiKeyExists: !!firebaseConfig.apiKey,
+    apiKeyLength: firebaseConfig.apiKey?.length,
+    apiKeyStart: firebaseConfig.apiKey?.substring(0, 5),
+    projectId: firebaseConfig.projectId
+});
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication
