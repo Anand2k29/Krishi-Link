@@ -1,24 +1,20 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, RecaptchaVerifier } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+    apiKey: "AIzaSyBhvLK2EVqQkwJOZ9pWnU3IIoy5gNPo8LY",
+    authDomain: "krishi-link-auth.firebaseapp.com",
+    projectId: "krishi-link-auth",
+    storageBucket: "krishi-link-auth.firebasestorage.app",
+    messagingSenderId: "144395720176",
+    appId: "1:144395720176:web:32ed296436bbaf4ba67935",
+    measurementId: "G-HKEF9RCMGR"
 };
 
 // Initialize Firebase
-console.log('Firebase Config Debug:', {
-    apiKeyExists: !!firebaseConfig.apiKey,
-    apiKeyLength: firebaseConfig.apiKey?.length,
-    apiKeyStart: firebaseConfig.apiKey?.substring(0, 5),
-    projectId: firebaseConfig.projectId
-});
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Initialize Firebase Authentication
 export const auth = getAuth(app);
