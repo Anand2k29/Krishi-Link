@@ -204,7 +204,7 @@ const getErrorMessage = (errorCode) => {
         'auth/user-disabled': 'This account has been disabled.',
         'auth/operation-not-allowed': 'This sign-in method is not enabled.',
         'auth/account-exists-with-different-credential': 'An account already exists with the same email.',
-        'auth/unauthorized-domain': 'This domain is not authorized. Please add it to Firebase Console > Auth > Settings > Authorized Domains.',
+        'auth/unauthorized-domain': `This domain (${window.location.hostname}) is not authorized. Please add it to Firebase Console > Auth > Settings > Authorized Domains.`,
     };
 
     return errorMessages[errorCode] || 'An error occurred. Please try again.';
