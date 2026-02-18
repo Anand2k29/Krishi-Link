@@ -3,12 +3,13 @@ import { useApp } from '../context/AppContext';
 import { User, ArrowRight, Sprout, Lock, LogIn } from 'lucide-react';
 import VoiceInputButton from './VoiceInputButton';
 import GoogleAuthButton from './GoogleAuthButton';
-import PhoneVerification from './PhoneVerification';
+import GoogleAuthButton from './GoogleAuthButton';
+
 
 export default function FarmerRegistration() {
     const { registerFarmer, loginFarmer, registerFarmerWithOAuth } = useApp();
     const [isLoginMode, setIsLoginMode] = useState(false);
-    const [authMethod, setAuthMethod] = useState('traditional'); // 'traditional', 'google', 'phone'
+    const [authMethod, setAuthMethod] = useState('traditional'); // 'traditional', 'google'
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -36,24 +37,14 @@ export default function FarmerRegistration() {
     };
 
     const handleGoogleSuccess = (user) => {
-        setGoogleUser(user);
-        setAuthMethod('phone');
-        setError('');
-    };
-
-    const handleGoogleError = (errorMessage) => {
-        setError(errorMessage);
-    };
-
-    const handlePhoneVerified = (phoneData) => {
-        // Register farmer with Google OAuth and phone verification
+        // Register farmer with Google OAuth immediately
         const result = registerFarmerWithOAuth({
-            name: googleUser.displayName || googleUser.email.split('@')[0],
-            email: googleUser.email,
-            uid: googleUser.uid,
-            photoURL: googleUser.photoURL,
-            phoneNumber: phoneData.phoneNumber,
-            phoneVerified: true
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            uid: user.uid,
+            photoURL: user.photoURL,
+            phoneNumber: null, // No phone verification
+            phoneVerified: false
         });
 
         if (!result.success) {
@@ -61,57 +52,11 @@ export default function FarmerRegistration() {
         }
     };
 
-    const handlePhoneError = (errorMessage) => {
+    const handleGoogleError = (errorMessage) => {
         setError(errorMessage);
     };
 
-    // If user chose Google auth and needs phone verification
-    if (authMethod === 'phone' && googleUser) {
-        return (
-            <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
-                <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
-                    <div className="text-center mb-6">
-                        {googleUser.photoURL && (
-                            <img
-                                src={googleUser.photoURL}
-                                alt="Profile"
-                                className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-emerald-200"
-                            />
-                        )}
-                        <h2 className="text-2xl font-bold text-gray-800">
-                            Welcome, {googleUser.displayName}!
-                        </h2>
-                        <p className="text-gray-500 mt-2 text-sm">
-                            Verify your phone number to complete registration
-                        </p>
-                    </div>
 
-                    <PhoneVerification
-                        onVerified={handlePhoneVerified}
-                        onError={handlePhoneError}
-                    />
-
-                    {error && (
-                        <p className="text-red-500 text-sm font-medium mt-4 text-center bg-red-50 p-2 rounded-lg border border-red-100">
-                            {error}
-                        </p>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setAuthMethod('traditional');
-                            setGoogleUser(null);
-                            setError('');
-                        }}
-                        className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 underline"
-                    >
-                        ← Back to login options
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">

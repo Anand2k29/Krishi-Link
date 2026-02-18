@@ -3,7 +3,6 @@ import { useApp } from '../context/AppContext';
 import { Truck, Lock, ArrowRight, User, LogIn } from 'lucide-react';
 import VoiceInputButton from './VoiceInputButton';
 import GoogleAuthButton from './GoogleAuthButton';
-import PhoneVerification from './PhoneVerification';
 
 export default function DriverRegistration() {
     const { registerDriver, loginDriver, registerDriverWithOAuth } = useApp();
@@ -14,7 +13,6 @@ export default function DriverRegistration() {
     const [vehicleNumber, setVehicleNumber] = useState('');
     const [error, setError] = useState('');
     const [googleUser, setGoogleUser] = useState(null);
-    const [phoneVerified, setPhoneVerified] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -44,21 +42,11 @@ export default function DriverRegistration() {
 
     const handleGoogleSuccess = (user) => {
         setGoogleUser(user);
-        setAuthMethod('phone');
+        setAuthMethod('vehicle'); // Skip phone, go to vehicle
         setError('');
     };
 
     const handleGoogleError = (errorMessage) => {
-        setError(errorMessage);
-    };
-
-    const handlePhoneVerified = (phoneData) => {
-        setPhoneVerified(true);
-        setAuthMethod('vehicle');
-        setError('');
-    };
-
-    const handlePhoneError = (errorMessage) => {
         setError(errorMessage);
     };
 
@@ -76,8 +64,8 @@ export default function DriverRegistration() {
             email: googleUser.email,
             uid: googleUser.uid,
             photoURL: googleUser.photoURL,
-            phoneNumber: phoneVerified.phoneNumber,
-            phoneVerified: true,
+            phoneNumber: null, // No phone verification
+            phoneVerified: false,
             vehicleNumber: vehicleNumber
         });
 
@@ -86,8 +74,8 @@ export default function DriverRegistration() {
         }
     };
 
-    // Vehicle number entry step (after phone verification for OAuth users)
-    if (authMethod === 'vehicle' && googleUser && phoneVerified) {
+    // Vehicle number entry step (after Google Sign-In)
+    if (authMethod === 'vehicle' && googleUser) {
         return (
             <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
                 <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
@@ -152,7 +140,6 @@ export default function DriverRegistration() {
                         onClick={() => {
                             setAuthMethod('traditional');
                             setGoogleUser(null);
-                            setPhoneVerified(false);
                             setError('');
                         }}
                         className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 underline"
@@ -164,53 +151,7 @@ export default function DriverRegistration() {
         );
     }
 
-    // Phone verification step (for OAuth users)
-    if (authMethod === 'phone' && googleUser) {
-        return (
-            <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
-                <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
-                    <div className="text-center mb-6">
-                        {googleUser.photoURL && (
-                            <img
-                                src={googleUser.photoURL}
-                                alt="Profile"
-                                className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-blue-200"
-                            />
-                        )}
-                        <h2 className="text-2xl font-bold text-gray-800">
-                            Welcome, {googleUser.displayName}!
-                        </h2>
-                        <p className="text-gray-500 mt-2 text-sm">
-                            Verify your phone number to continue
-                        </p>
-                    </div>
 
-                    <PhoneVerification
-                        onVerified={handlePhoneVerified}
-                        onError={handlePhoneError}
-                    />
-
-                    {error && (
-                        <p className="text-red-500 text-sm font-medium mt-4 text-center bg-red-50 p-2 rounded-lg border border-red-100">
-                            {error}
-                        </p>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setAuthMethod('traditional');
-                            setGoogleUser(null);
-                            setError('');
-                        }}
-                        className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 underline"
-                    >
-                        ← Back to login options
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-4">
