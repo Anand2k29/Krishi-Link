@@ -8,7 +8,7 @@
 ## 🌟 Key Features
 
 ### 1. 🧑‍🌾 For Farmers (The Dashboard)
-- **Multilingual Support**: Real-time **English/Hindi** toggle for accessibility across diverse agricultural regions.
+- ****Multilingual Support****: Real-time **English/Hindi** toggle for accessibility across diverse agricultural regions.
 - **Logistics Calculator**: Calculate potential savings by using Krishi-Link instead of traditional transport.
 - **Weather Integrated Advisory**: Smart weather alerts (Rain, Wind, Heat) based on source village to optimize harvest transport.
 - **Real-time Agri-Advisories**: Company-sponsored alerts (Weather, Pests, Tech Tips) from trusted partners like Bayer and Jain Irrigation.
