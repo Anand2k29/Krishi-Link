@@ -63,6 +63,7 @@ export const initRecaptcha = (containerId) => {
  * @param {RecaptchaVerifier} recaptchaVerifier - reCAPTCHA verifier instance
  * @returns {Promise<{success: boolean, verificationId?: string, error?: string}>}
  */
+/*
 export const sendOTP = async (phoneNumber, recaptchaVerifier) => {
     try {
         const confirmationResult = await signInWithPhoneNumber(
@@ -93,12 +94,14 @@ export const sendOTP = async (phoneNumber, recaptchaVerifier) => {
         };
     }
 };
+*/
 
 /**
  * Verify OTP code
  * @param {string} code - 6-digit OTP code
  * @returns {Promise<{success: boolean, user?: object, error?: string}>}
  */
+/*
 export const verifyOTP = async (code) => {
     try {
         if (!window.confirmationResult) {
@@ -127,6 +130,7 @@ export const verifyOTP = async (code) => {
         };
     }
 };
+*/
 
 /**
  * Link phone number to existing Google account
@@ -134,6 +138,7 @@ export const verifyOTP = async (code) => {
  * @param {string} verificationCode - OTP code
  * @returns {Promise<{success: boolean, error?: string}>}
  */
+/*
 export const linkPhoneToAccount = async (phoneNumber, verificationCode) => {
     try {
         const credential = PhoneAuthProvider.credential(
@@ -152,6 +157,7 @@ export const linkPhoneToAccount = async (phoneNumber, verificationCode) => {
         };
     }
 };
+*/
 
 /**
  * Get current authenticated user
@@ -213,9 +219,9 @@ const getErrorMessage = (errorCode) => {
 export default {
     signInWithGoogle,
     initRecaptcha,
-    sendOTP,
-    verifyOTP,
-    linkPhoneToAccount,
+    // sendOTP,
+    // verifyOTP,
+    // linkPhoneToAccount,
     getCurrentUser,
     signOut
 };

@@ -161,35 +161,23 @@ export default function DriverRegistration() {
                         <Truck className="w-8 h-8 text-blue-600" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800">
-                        {isLoginMode ? 'Driver Login' : 'Driver Registration'}
+                        Driver Registration
                     </h2>
                     <p className="text-gray-500 mt-2">
-                        {isLoginMode
-                            ? 'Access your loads and earnings'
-                            : 'Join our fleet network'}
+                        Join our fleet network
                     </p>
                 </div>
 
                 {/* Google Sign-In Option */}
-                {!isLoginMode && (
-                    <div className="mb-6">
-                        <GoogleAuthButton
-                            onSuccess={handleGoogleSuccess}
-                            onError={handleGoogleError}
-                            text="Sign up with Google"
-                        />
+                <div className="mb-6">
+                    <GoogleAuthButton
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        text="Sign up with Google"
+                    />
+                </div>
 
-                        <div className="relative my-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200"></div>
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
+                {/*
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -285,6 +273,9 @@ export default function DriverRegistration() {
                         </button>
                     </div>
                 </form>
+                */}
+
+                {error && <p className="text-red-500 text-sm font-medium mt-4 text-center bg-red-50 p-2 rounded-lg border border-red-100">{error}</p>}
             </div>
         </div>
     );

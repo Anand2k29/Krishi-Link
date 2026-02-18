@@ -63,42 +63,26 @@ export default function FarmerRegistration() {
             <div className="glass-card w-full max-w-md p-8 animate-in zoom-in duration-500">
                 <div className="text-center mb-8">
                     <div className="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        {isLoginMode ? (
-                            <LogIn className="w-8 h-8 text-emerald-600" />
-                        ) : (
-                            <User className="w-8 h-8 text-emerald-600" />
-                        )}
+                        <User className="w-8 h-8 text-emerald-600" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800">
-                        {isLoginMode ? 'Welcome Back' : 'Join Krishi-Link'}
+                        Join Krishi-Link
                     </h2>
                     <p className="text-gray-500 mt-2">
-                        {isLoginMode
-                            ? 'Enter your credentials to continue'
-                            : 'Register to start booking loads'}
+                        Sign in to start booking loads
                     </p>
                 </div>
 
                 {/* Google Sign-In Option */}
-                {!isLoginMode && (
-                    <div className="mb-6">
-                        <GoogleAuthButton
-                            onSuccess={handleGoogleSuccess}
-                            onError={handleGoogleError}
-                            text="Sign up with Google"
-                        />
+                <div className="mb-6">
+                    <GoogleAuthButton
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        text="Continue with Google"
+                    />
+                </div>
 
-                        <div className="relative my-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200"></div>
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
+                {/* 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -172,7 +156,10 @@ export default function FarmerRegistration() {
                                 : "Already registered? Login here"}
                         </button>
                     </div>
-                </form>
+                </form> 
+                */}
+
+                {error && <p className="text-red-500 text-sm font-medium mt-4 text-center bg-red-50 p-2 rounded-lg border border-red-100">{error}</p>}
             </div>
         </div>
     );
