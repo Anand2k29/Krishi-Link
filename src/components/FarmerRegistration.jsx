@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { User, ArrowRight, Sprout, Lock, LogIn } from 'lucide-react';
 import VoiceInputButton from './VoiceInputButton';
 import GoogleAuthButton from './GoogleAuthButton';
-import GoogleAuthButton from './GoogleAuthButton';
+
 
 
 export default function FarmerRegistration() {
